@@ -1,0 +1,83 @@
+Index: mozilla/security/nss/lib/util/dertime.c
+===================================================================
+RCS file: /cvsroot/mozilla/security/nss/lib/util/dertime.c,v
+retrieving revision 1.13
+diff -u -p -u -8 -r1.13 dertime.c
+--- mozilla/security/nss/lib/util/dertime.c	29 Dec 2009 02:57:28 -0000	1.13
++++ mozilla/security/nss/lib/util/dertime.c	21 Jan 2010 22:34:30 -0000
+@@ -108,17 +108,17 @@ DER_TimeToUTCTimeArena(PRArenaPool* aren
+ SECStatus
+ DER_TimeToUTCTime(SECItem *dst, int64 gmttime)
+ {
+     return DER_TimeToUTCTimeArena(NULL, dst, gmttime);
+ }
+ 
+ static SECStatus /* forward */
+ der_TimeStringToTime(PRTime *dst, const char *string, int generalized,
+-                     char **endptr);
++                     const char **endptr);
+ 
+ #define GEN_STRING 2 /* TimeString is a GeneralizedTime */
+ #define UTC_STRING 0 /* TimeString is a UTCTime         */
+ 
+ /* The caller of DER_AsciiToItem MUST ENSURE that either
+ ** a) "string" points to a null-terminated ASCII string, or
+ ** b) "string" points to a buffer containing a valid UTCTime, 
+ **     whether null terminated or not, or
+@@ -136,17 +136,17 @@ SECStatus
+ DER_UTCTimeToTime(int64 *dst, const SECItem *time)
+ {
+     /* Minimum valid UTCTime is yymmddhhmmZ       which is 11 bytes. 
+     ** Maximum valid UTCTime is yymmddhhmmss+0000 which is 17 bytes.
+     ** 20 should be large enough for all valid encoded times. 
+     */
+     unsigned int i;
+     char localBuf[20];
+-    char *end = NULL;
++    const char *end = NULL;
+     SECStatus rv;
+ 
+     if (!time || !time->data || time->len < 11 || time->len > 17) {
+ 	PORT_SetError(SEC_ERROR_INVALID_TIME);
+ 	return SECFailure;
+     }
+ 
+     for (i = 0; i < time->len; i++) {
+@@ -230,17 +230,17 @@ SECStatus
+ DER_GeneralizedTimeToTime(int64 *dst, const SECItem *time)
+ {
+     /* Minimum valid GeneralizedTime is ccyymmddhhmmZ       which is 13 bytes.
+     ** Maximum valid GeneralizedTime is ccyymmddhhmmss+0000 which is 19 bytes.
+     ** 20 should be large enough for all valid encoded times. 
+     */
+     unsigned int i;
+     char localBuf[20];
+-    char *end = NULL;
++    const char *end = NULL;
+     SECStatus rv;
+ 
+     if (!time || !time->data || time->len < 13 || time->len > 19) {
+ 	PORT_SetError(SEC_ERROR_INVALID_TIME);
+ 	return SECFailure;
+     }
+ 
+     for (i = 0; i < time->len; i++) {
+@@ -257,17 +257,17 @@ DER_GeneralizedTimeToTime(int64 *dst, co
+ 	PORT_SetError(SEC_ERROR_INVALID_TIME);
+ 	return SECFailure;
+     }
+     return rv;
+ }
+ 
+ static SECStatus
+ der_TimeStringToTime(PRTime *dst, const char *string, int generalized,
+-                     char **endptr)
++                     const char **endptr)
+ {
+     PRExplodedTime genTime;
+     long hourOff = 0, minOff = 0;
+     uint16 century;
+     char signum;
+ 
+     if (string == NULL || dst == NULL) {
+ 	PORT_SetError(SEC_ERROR_INVALID_ARGS);
