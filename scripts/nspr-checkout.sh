@@ -7,11 +7,11 @@
 # it for Chromium.
 
 # Make the script exit as soon as something fails.
-set -e
+set -ex
 
 rm -rf mozilla/nsprpub
 cvs -q -d :pserver:anonymous@cvs-mirror.mozilla.org:/cvsroot export \
-    -D 2010-01-19 NSPR
+    -r NSPR_4_8_4_BETA1 NSPR
 
 rm -r mozilla/nsprpub/admin
 rm -r mozilla/nsprpub/build
@@ -36,7 +36,6 @@ find mozilla/nsprpub -name README -print | xargs rm
 rm mozilla/nsprpub/configure
 rm mozilla/nsprpub/configure.in
 find mozilla/nsprpub -name Makefile.in -print | xargs rm
-find mozilla/nsprpub -name MANIFEST -print | xargs rm
 find mozilla/nsprpub -name "*.mk" -print | xargs rm
 
 # Remove files for building shared libraries/DLLs.
@@ -63,7 +62,6 @@ rm mozilla/nsprpub/pr/src/md/windows/ntio.c
 rm mozilla/nsprpub/pr/src/md/windows/ntthread.c
 
 # Remove obsolete files or files we don't need.
-rm mozilla/nsprpub/lib/libc/include/plresolv.h
 rm mozilla/nsprpub/pr/include/gencfg.c
 rm mozilla/nsprpub/pr/src/memory/prgcleak.c
 rm mozilla/nsprpub/pr/src/misc/compile-et.pl

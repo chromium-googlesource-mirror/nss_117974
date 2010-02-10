@@ -7,11 +7,11 @@
 # it for Chromium.
 
 # Make the script exit as soon as something fails.
-set -e
+set -ex
 
 rm -rf mozilla/security/nss/lib
 cvs -q -d :pserver:anonymous@cvs-mirror.mozilla.org:/cvsroot export \
-    -D 2010-01-19 mozilla/security/nss/lib
+    -r NSS_3_12_6_BETA1 mozilla/security/nss/lib
 
 # Rename one of the utf8.c files to avoid name conflict.
 mv mozilla/security/nss/lib/base/utf8.c mozilla/security/nss/lib/base/nssutf8.c

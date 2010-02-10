@@ -41,7 +41,7 @@
  * 
  * NOTE - These are not public interfaces
  *
- * $Id: secport.c,v 1.26 2009/12/24 03:37:46 nelson%bolyard.com Exp $
+ * $Id: secport.c,v 1.28 2010/01/22 02:34:30 wtc%google.com Exp $
  */
 
 #include "seccomon.h"
@@ -340,8 +340,7 @@ PORT_FreeArena(PLArenaPool *arena, PRBool zero)
     }
     if (!checkedEnv) {
 	/* no need for thread protection here */
-	const char *ev = PR_GetEnv("NSS_DISABLE_ARENA_FREE_LIST");
-	if (!ev) doFreeArenaPool = PR_TRUE;
+	doFreeArenaPool = (PR_GetEnv("NSS_DISABLE_ARENA_FREE_LIST") == NULL);
 	checkedEnv = PR_TRUE;
     }
     if (zero) {

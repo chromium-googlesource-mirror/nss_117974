@@ -1,7 +1,7 @@
 Network Security Services (NSS)
 
 URL: http://www.mozilla.org/projects/security/pki/nss/
-Version: NSS 3.12.6 pre-release with NSPR 4.8.4 pre-release
+Version: NSS 3.12.6 Beta 1 with NSPR 4.8.4 Beta 1
 License: MPL/LGPL/GPL tri-license
 License File: http://www.mozilla.org/MPL/
 
@@ -19,15 +19,14 @@ Linux.
 
 The source code was checked out from the mozilla.org CVS repository using
 the nspr-checkout.sh and nss-checkout.sh scripts in the scripts directory.
-The current source code was checked out with the date tag -D 2010-01-19.
+The current source code was checked out with the CVS tags -r NSS_3_12_6_BETA1
+and -r NSPR_4_8_4_BETA1.
 
 Local Modifications:
 
 We made the following local changes to NSPR.
 - patches/nspr-static.patch: to build NSPR as static libraries.  See NSPR
   bug 533014 (https://bugzilla.mozilla.org/show_bug.cgi?id=533014).
-- patches/nspr-warnings.patch: to fix some (but not all) compiler warnings.
-  See NSPR bug 541222 (https://bugzilla.mozilla.org/show_bug.cgi?id=541222).
 - patches/prcpucfg.h: added to the mozilla/nsprpub/pr/include directory.
 
 We made the following local changes to NSS.
@@ -35,11 +34,3 @@ We made the following local changes to NSS.
   libpkix (the new certification path validation library) and
   softoken/legacydb (support for the old Berkeley DB databases).  See NSS
   bug 534471 (https://bugzilla.mozilla.org/show_bug.cgi?id=534471).
-- patches/nss-secport.patch: to rewrite ancient code that uses NSPR as
-  shared libraries/DLLs.  See NSS bug 541228
-  (https://bugzilla.mozilla.org/show_bug.cgi?id=541228).
-- patches/nss-nssinit.patch: to remove two unnecessary header inclusions.
-  See NSS bug 541231 (https://bugzilla.mozilla.org/show_bug.cgi?id=541231).
-- patches/nss-dertime.patch: to fix some (but not all) compiler warnings.
-  See NSS bug 536023 comment 13
-  (https://bugzilla.mozilla.org/show_bug.cgi?id=536023#c13).
