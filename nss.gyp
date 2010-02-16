@@ -551,7 +551,6 @@
         'mozilla/security/nss/lib/util/secdig.h',
         'mozilla/security/nss/lib/util/secdigt.h',
         'mozilla/security/nss/lib/util/secerr.h',
-        'mozilla/security/nss/lib/util/secinit.c',
         'mozilla/security/nss/lib/util/secitem.c',
         'mozilla/security/nss/lib/util/secitem.h',
         'mozilla/security/nss/lib/util/secload.c',
