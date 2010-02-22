@@ -11,7 +11,7 @@ set -ex
 
 rm -rf mozilla/nsprpub
 cvs -q -d :pserver:anonymous@cvs-mirror.mozilla.org:/cvsroot export \
-    -r NSPR_4_8_4_BETA1 NSPR
+    -r NSPR_4_8_4_RTM NSPR
 
 rm -r mozilla/nsprpub/admin
 rm -r mozilla/nsprpub/build

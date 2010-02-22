@@ -11,7 +11,7 @@ set -ex
 
 rm -rf mozilla/security/nss/lib
 cvs -q -d :pserver:anonymous@cvs-mirror.mozilla.org:/cvsroot export \
-    -r NSS_3_12_6_RC0 mozilla/security/nss/lib
+    -r NSS_3_12_6_RC1 mozilla/security/nss/lib
 
 # Rename one of the utf8.c files to avoid name conflict.
 mv mozilla/security/nss/lib/base/utf8.c mozilla/security/nss/lib/base/nssutf8.c
