@@ -309,7 +309,7 @@ PRThread *thread;
 
    	if (NULL == thread) {
 		thread = _PRI_AttachThread(
-            PR_USER_THREAD, PR_PRIORITY_NORMAL, NULL, 0);
+            PR_SYSTEM_THREAD, PR_PRIORITY_NORMAL, NULL, 0);
 	}
 	PR_ASSERT(thread != NULL);
 	return thread;
