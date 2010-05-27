@@ -55,6 +55,8 @@ find mozilla/nsprpub/pr/include/md -name "_*" ! -name "_darwin.*" \
 find mozilla/nsprpub/pr/src/md/unix -type f ! -name "ux*.c" ! -name unix.c \
     ! -name unix_errors.c ! -name darwin.c ! -name "os_Darwin*.s" -print \
     | xargs rm
+rm mozilla/nsprpub/pr/src/md/unix/os_Darwin_ppc.s
+rm mozilla/nsprpub/pr/src/md/unix/uxpoll.c
 
 # Remove files for the WINNT build configuration.
 rm mozilla/nsprpub/pr/src/md/windows/ntdllmn.c

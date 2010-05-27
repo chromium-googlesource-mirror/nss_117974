@@ -44,6 +44,7 @@ find mozilla/security/nss/lib -name "*.def" -print | xargs rm
 find mozilla/security/nss/lib -name "*.rc" -print | xargs rm
 
 # Remove obsolete files or files we don't need.
+rm mozilla/security/nss/lib/util/secload.c
 rm mozilla/security/nss/lib/util/secplcy.c
 rm mozilla/security/nss/lib/util/secplcy.h
 rm mozilla/security/nss/lib/certhigh/certvfypkix.c

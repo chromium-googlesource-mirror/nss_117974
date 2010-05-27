@@ -142,12 +142,10 @@
         'mozilla/nsprpub/pr/src/md/prosdep.c',
         'mozilla/nsprpub/pr/src/md/unix/darwin.c',
         'mozilla/nsprpub/pr/src/md/unix/os_Darwin.s',
-        'mozilla/nsprpub/pr/src/md/unix/os_Darwin_ppc.s',
         'mozilla/nsprpub/pr/src/md/unix/os_Darwin_x86.s',
         'mozilla/nsprpub/pr/src/md/unix/os_Darwin_x86_64.s',
         'mozilla/nsprpub/pr/src/md/unix/unix.c',
         'mozilla/nsprpub/pr/src/md/unix/unix_errors.c',
-        'mozilla/nsprpub/pr/src/md/unix/uxpoll.c',
         'mozilla/nsprpub/pr/src/md/unix/uxproces.c',
         'mozilla/nsprpub/pr/src/md/unix/uxrng.c',
         'mozilla/nsprpub/pr/src/md/unix/uxshm.c',
@@ -230,6 +228,37 @@
         ],
       },
       'conditions': [
+        ['OS=="mac"', {
+          'defines': [
+            'XP_UNIX',
+            'DARWIN',
+            'XP_MACOSX',
+            '_PR_PTHREADS',
+            'HAVE_BSD_FLOCK',
+            'HAVE_SOCKLEN_T',
+            'HAVE_LCHOWN',
+            'HAVE_STRERROR',
+          ],
+          'sources/': [
+            ['exclude', '^mozilla/nsprpub/pr/src/md/windows/'],
+            ['exclude', '^mozilla/nsprpub/pr/src/threads/combined/'],
+          ],
+          'sources!': [
+            'mozilla/nsprpub/pr/src/io/prdir.c',
+            'mozilla/nsprpub/pr/src/io/prfile.c',
+            'mozilla/nsprpub/pr/src/io/prio.c',
+            'mozilla/nsprpub/pr/src/io/prsocket.c',
+            # os_Darwin_x86.s and os_Darwin_x86_64.s are included by
+            # os_Darwin.s.
+            'mozilla/nsprpub/pr/src/md/unix/os_Darwin_x86.s',
+            'mozilla/nsprpub/pr/src/md/unix/os_Darwin_x86_64.s',
+            'mozilla/nsprpub/pr/src/misc/pripcsem.c',
+            'mozilla/nsprpub/pr/src/threads/prcthr.c',
+            'mozilla/nsprpub/pr/src/threads/prdump.c',
+            'mozilla/nsprpub/pr/src/threads/prmon.c',
+            'mozilla/nsprpub/pr/src/threads/prsem.c',
+          ],
+        }],
         ['OS=="win"', {
           'defines': [
             'XP_PC',
@@ -553,7 +582,6 @@
         'mozilla/security/nss/lib/util/secerr.h',
         'mozilla/security/nss/lib/util/secitem.c',
         'mozilla/security/nss/lib/util/secitem.h',
-        'mozilla/security/nss/lib/util/secload.c',
         'mozilla/security/nss/lib/util/secoid.c',
         'mozilla/security/nss/lib/util/secoid.h',
         'mozilla/security/nss/lib/util/secoidt.h',
@@ -644,6 +672,27 @@
           ],
           'sources/': [
             ['exclude', 'amd64'],
+          ],
+        }],
+        ['OS=="mac"', {
+          'defines': [
+            'XP_UNIX',
+            'DARWIN',
+            'HAVE_STRERROR',
+            'HAVE_BSD_FLOCK',
+            'SHLIB_SUFFIX=\"dylib\"',
+            'SHLIB_PREFIX=\"lib\"',
+            'SOFTOKEN_LIB_NAME=\"libsoftokn3.dylib\"',
+          ],
+          'sources!': [
+            'mozilla/security/nss/lib/freebl/mpi/mpi_x86_asm.c',
+          ],
+          'conditions': [
+            ['target_arch=="ia32"', {
+              'defines': [
+                'i386',
+              ],
+            }],
           ],
         }],
         ['OS=="win"', {

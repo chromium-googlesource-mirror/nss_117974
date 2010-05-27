@@ -1,0 +1,147 @@
+Index: mozilla/nsprpub/pr/src/md/unix/os_Darwin_x86.s
+===================================================================
+RCS file: /cvsroot/mozilla/nsprpub/pr/src/md/unix/os_Darwin_x86.s,v
+retrieving revision 1.2
+diff -p -u -8 -r1.2 os_Darwin_x86.s
+--- mozilla/nsprpub/pr/src/md/unix/os_Darwin_x86.s	11 Dec 2006 09:45:30 -0000	1.2
++++ mozilla/nsprpub/pr/src/md/unix/os_Darwin_x86.s	27 May 2010 18:38:39 -0000
+@@ -44,16 +44,17 @@
+ #
+ # PRInt32 __PR_Darwin_x86_AtomicIncrement(PRInt32 *val);
+ #
+ # Atomically increment the integer pointed to by 'val' and return
+ # the result of the increment.
+ #
+     .text
+     .globl __PR_Darwin_x86_AtomicIncrement
++    .private_extern __PR_Darwin_x86_AtomicIncrement
+     .align 4
+ __PR_Darwin_x86_AtomicIncrement:
+     movl 4(%esp), %ecx
+     movl $1, %eax
+     lock
+     xaddl %eax, (%ecx)
+     incl %eax
+     ret
+@@ -61,16 +62,17 @@ __PR_Darwin_x86_AtomicIncrement:
+ #
+ # PRInt32 __PR_Darwin_x86_AtomicDecrement(PRInt32 *val);
+ #
+ # Atomically decrement the integer pointed to by 'val' and return
+ # the result of the decrement.
+ #
+     .text
+     .globl __PR_Darwin_x86_AtomicDecrement
++    .private_extern __PR_Darwin_x86_AtomicDecrement
+     .align 4
+ __PR_Darwin_x86_AtomicDecrement:
+     movl 4(%esp), %ecx
+     movl $-1, %eax
+     lock
+     xaddl %eax, (%ecx)
+     decl %eax
+     ret
+@@ -78,31 +80,33 @@ __PR_Darwin_x86_AtomicDecrement:
+ #
+ # PRInt32 __PR_Darwin_x86_AtomicSet(PRInt32 *val, PRInt32 newval);
+ #
+ # Atomically set the integer pointed to by 'val' to the new
+ # value 'newval' and return the old value.
+ #
+     .text
+     .globl __PR_Darwin_x86_AtomicSet
++    .private_extern __PR_Darwin_x86_AtomicSet
+     .align 4
+ __PR_Darwin_x86_AtomicSet:
+     movl 4(%esp), %ecx
+     movl 8(%esp), %eax
+     xchgl %eax, (%ecx)
+     ret
+ 
+ #
+ # PRInt32 __PR_Darwin_x86_AtomicAdd(PRInt32 *ptr, PRInt32 val);
+ #
+ # Atomically add 'val' to the integer pointed to by 'ptr'
+ # and return the result of the addition.
+ #
+     .text
+     .globl __PR_Darwin_x86_AtomicAdd
++    .private_extern __PR_Darwin_x86_AtomicAdd
+     .align 4
+ __PR_Darwin_x86_AtomicAdd:
+     movl 4(%esp), %ecx
+     movl 8(%esp), %eax
+     movl %eax, %edx
+     lock
+     xaddl %eax, (%ecx)
+     addl %edx, %eax
+Index: mozilla/nsprpub/pr/src/md/unix/os_Darwin_x86_64.s
+===================================================================
+RCS file: /cvsroot/mozilla/nsprpub/pr/src/md/unix/os_Darwin_x86_64.s,v
+retrieving revision 1.1
+diff -p -u -8 -r1.1 os_Darwin_x86_64.s
+--- mozilla/nsprpub/pr/src/md/unix/os_Darwin_x86_64.s	27 Jul 2008 16:04:23 -0000	1.1
++++ mozilla/nsprpub/pr/src/md/unix/os_Darwin_x86_64.s	27 May 2010 18:38:39 -0000
+@@ -38,58 +38,62 @@
+ 
+ # PRInt32 __PR_Darwin_x86_64_AtomicIncrement(PRInt32 *val)
+ #
+ # Atomically increment the integer pointed to by 'val' and return
+ # the result of the increment.
+ #
+     .text
+     .globl __PR_Darwin_x86_64_AtomicIncrement
++    .private_extern __PR_Darwin_x86_64_AtomicIncrement
+     .align 4
+ __PR_Darwin_x86_64_AtomicIncrement:
+     movl $1, %eax
+     lock
+     xaddl %eax, (%rdi)
+     incl %eax
+     ret
+ 
+ # PRInt32 __PR_Darwin_x86_64_AtomicDecrement(PRInt32 *val)
+ #
+ # Atomically decrement the integer pointed to by 'val' and return
+ # the result of the decrement.
+ #
+     .text
+     .globl __PR_Darwin_x86_64_AtomicDecrement
++    .private_extern __PR_Darwin_x86_64_AtomicDecrement
+     .align 4
+ __PR_Darwin_x86_64_AtomicDecrement:
+     movl $-1, %eax
+     lock
+     xaddl %eax, (%rdi)
+     decl %eax
+     ret
+ 
+ # PRInt32 __PR_Darwin_x86_64_AtomicSet(PRInt32 *val, PRInt32 newval)
+ #
+ # Atomically set the integer pointed to by 'val' to the new
+ # value 'newval' and return the old value.
+ #
+     .text
+     .globl __PR_Darwin_x86_64_AtomicSet
++    .private_extern __PR_Darwin_x86_64_AtomicSet
+     .align 4
+ __PR_Darwin_x86_64_AtomicSet:
+     movl %esi, %eax
+     xchgl %eax, (%rdi)
+     ret
+ 
+ # PRInt32 __PR_Darwin_x86_64_AtomicAdd(PRInt32 *ptr, PRInt32 val)
+ #
+ # Atomically add 'val' to the integer pointed to by 'ptr'
+ # and return the result of the addition.
+ #
+     .text
+     .globl __PR_Darwin_x86_64_AtomicAdd
++    .private_extern __PR_Darwin_x86_64_AtomicAdd
+     .align 4
+ __PR_Darwin_x86_64_AtomicAdd:
+     movl %esi, %eax
+     lock
+     xaddl %eax, (%rdi)
+     addl %esi, %eax
+     ret

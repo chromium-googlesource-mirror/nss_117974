@@ -34,6 +34,12 @@ We made the following local changes to NSPR.
   (The "system" vs. "user" thread distinction comes from Java, and
   ultimately from Solaris threads.)  This is a workaround for
   http://crbug.com/40663.
+- patches/nspr-private-extern.patch: add .private_extern directives to NSPR
+  assembly code functions for Mac OS X.  See NSPR bug 568600
+  (https://bugzilla.mozilla.org/show_bug.cgi?id=568600).
+- patches/nspr-remove-flat-carbon-headers.patch: remove FlatCarbon headers
+  in prlink.c.  See NSPR bug 546478
+  (https://bugzilla.mozilla.org/show_bug.cgi?id=546478).
 
 We made the following local changes to NSS.
 - patches/nss-static.patch: to build NSS as static libraries and omit
