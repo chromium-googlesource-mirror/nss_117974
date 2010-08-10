@@ -1,7 +1,7 @@
 Network Security Services (NSS)
 
 URL: http://www.mozilla.org/projects/security/pki/nss/
-Version: NSS 3.12.6 with NSPR 4.8.4
+Version: NSS 3.12.7 with NSPR 4.8.6
 License: MPL/LGPL/GPL tri-license
 License File: http://www.mozilla.org/MPL/
 
@@ -19,8 +19,8 @@ Linux.
 
 The source code was checked out from the mozilla.org CVS repository using
 the nspr-checkout.sh and nss-checkout.sh scripts in the scripts directory.
-The current source code was checked out with the CVS tags -r NSS_3_12_6_RTM
-and -r NSPR_4_8_4_RTM.
+The current source code was checked out with the CVS tags -r NSS_3_12_7_RTM
+and -r NSPR_4_8_6_RTM.
 
 Local Modifications:
 
@@ -34,12 +34,6 @@ We made the following local changes to NSPR.
   (The "system" vs. "user" thread distinction comes from Java, and
   ultimately from Solaris threads.)  This is a workaround for
   http://crbug.com/40663.
-- patches/nspr-private-extern.patch: add .private_extern directives to NSPR
-  assembly code functions for Mac OS X.  See NSPR bug 568600
-  (https://bugzilla.mozilla.org/show_bug.cgi?id=568600).
-- patches/nspr-remove-flat-carbon-headers.patch: remove FlatCarbon headers
-  in prlink.c.  See NSPR bug 546478
-  (https://bugzilla.mozilla.org/show_bug.cgi?id=546478).
 
 We made the following local changes to NSS.
 - patches/nss-static.patch: to build NSS as static libraries and omit

@@ -11,7 +11,7 @@ set -ex
 
 rm -rf mozilla/security/nss/lib
 cvs -q -d :pserver:anonymous@cvs-mirror.mozilla.org:/cvsroot export \
-    -r NSS_3_12_6_RTM mozilla/security/nss/lib
+    -r NSS_3_12_7_RTM mozilla/security/nss/lib
 
 # Rename one of the utf8.c files to avoid name conflict.
 mv mozilla/security/nss/lib/base/utf8.c mozilla/security/nss/lib/base/nssutf8.c
@@ -49,9 +49,6 @@ rm mozilla/security/nss/lib/util/secplcy.c
 rm mozilla/security/nss/lib/util/secplcy.h
 rm mozilla/security/nss/lib/certhigh/certvfypkix.c
 rm mozilla/security/nss/lib/certhigh/certvfypkixprint.c
-rm mozilla/security/nss/lib/pki1/*.c
-rm mozilla/security/nss/lib/pki1/oidgen.perl
-rm mozilla/security/nss/lib/pki1/oids.txt
 rm mozilla/security/nss/lib/smime/*.c
 
 find mozilla/security/nss/lib/ssl -type f ! -name sslerr.h | xargs rm

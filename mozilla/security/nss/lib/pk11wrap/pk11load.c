@@ -139,9 +139,9 @@ secmod_handleReload(SECMODModule *oldModule, SECMODModule *newModule)
     char *newModuleSpec;
     char **children;
     CK_SLOT_ID *ids;
-    SECStatus rv;
-    SECMODConfigList *conflist;
-    int count = 0;
+    SECMODConfigList *conflist = NULL;
+    SECStatus         rv       = SECFailure;
+    int               count    = 0;
 
     /* first look for tokens= key words from the module spec */
     modulespec = newModule->libraryParams;
@@ -424,7 +424,7 @@ secmod_LoadPKCS11Module(SECMODModule *mod, SECMODModule **oldModule) {
         PR_SUCCESS != PR_CallOnce(&loadSoftokenOnce, &softoken_LoadDSO))
         return SECFailure;
 
-    PR_AtomicIncrement(&softokenLoadCount);
+    PR_ATOMIC_INCREMENT(&softokenLoadCount);
 
     if (mod->isFIPS) {
         entry = (CK_C_GetFunctionList) 
@@ -612,7 +612,7 @@ SECMOD_UnloadModule(SECMODModule *mod) {
      * mod->loaded = PR_FALSE; */
     if (mod->internal) {
 #if 0  /* STATIC LIBRARIES */
-        if (0 == PR_AtomicDecrement(&softokenLoadCount)) {
+        if (0 == PR_ATOMIC_DECREMENT(&softokenLoadCount)) {
           if (softokenLib) {
               disableUnload = PR_GetEnv("NSS_DISABLE_UNLOAD");
               if (!disableUnload) {
