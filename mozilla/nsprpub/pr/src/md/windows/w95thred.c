@@ -309,7 +309,7 @@ PRThread *thread;
 
    	if (NULL == thread) {
 		thread = _PRI_AttachThread(
-            PR_SYSTEM_THREAD, PR_PRIORITY_NORMAL, NULL, 0);
+            PR_USER_THREAD, PR_PRIORITY_NORMAL, NULL, 0);
 	}
 	PR_ASSERT(thread != NULL);
 	return thread;
@@ -353,17 +353,19 @@ PRThread *thread;
 // This magic is from http://www.codeproject.com/threads/tls.asp
 // and it works for VC++ 7.0 and later.
 
+// Force a reference to _tls_used to make the linker create the TLS directory
+// if it's not already there.  (e.g. if __declspec(thread) is not used).
+// Force a reference to p_thread_callback_nspr to prevent whole program
+// optimization from discarding the variable.
 #ifdef _WIN64
 
-// This makes the linker create the TLS directory if it's not already
-// there.  (e.g. if __declspec(thread) is not used).
 #pragma comment(linker, "/INCLUDE:_tls_used")
+#pragma comment(linker, "/INCLUDE:p_thread_callback_nspr")
 
 #else  // _WIN64
 
-// This makes the linker create the TLS directory if it's not already
-// there.  (e.g. if __declspec(thread) is not used).
 #pragma comment(linker, "/INCLUDE:__tls_used")
+#pragma comment(linker, "/INCLUDE:_p_thread_callback_nspr")
 
 #endif  // _WIN64
 
@@ -399,15 +401,19 @@ PRThread *me;
 // implicitly loaded.
 //
 // See VC\crt\src\tlssup.c for reference.
+
+// The linker must not discard p_thread_callback_nspr.  (We force a reference
+// to this variable with a linker /INCLUDE:symbol pragma to ensure that.) If
+// this variable is discarded, the PR_OnThreadExit function will never be
+// called.
 #ifdef _WIN64
 
 // .CRT section is merged with .rdata on x64 so it must be constant data.
 #pragma const_seg(".CRT$XLB")
 // When defining a const variable, it must have external linkage to be sure the
-// linker doesn't discard it. If this value is discarded, the PR_OnThreadExit
-// function will never be called.
-extern const PIMAGE_TLS_CALLBACK p_thread_callback;
-const PIMAGE_TLS_CALLBACK p_thread_callback = PR_OnThreadExit;
+// linker doesn't discard it.
+extern const PIMAGE_TLS_CALLBACK p_thread_callback_nspr;
+const PIMAGE_TLS_CALLBACK p_thread_callback_nspr = PR_OnThreadExit;
 
 // Reset the default section.
 #pragma const_seg()
@@ -415,7 +421,7 @@ const PIMAGE_TLS_CALLBACK p_thread_callback = PR_OnThreadExit;
 #else  // _WIN64
 
 #pragma data_seg(".CRT$XLB")
-PIMAGE_TLS_CALLBACK p_thread_callback = PR_OnThreadExit;
+PIMAGE_TLS_CALLBACK p_thread_callback_nspr = PR_OnThreadExit;
 
 // Reset the default section.
 #pragma data_seg()

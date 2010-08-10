@@ -1,10 +1,10 @@
 Index: mozilla/nsprpub/pr/include/prtypes.h
 ===================================================================
 RCS file: /cvsroot/mozilla/nsprpub/pr/include/prtypes.h,v
-retrieving revision 3.41
-diff -p -u -8 -r3.41 prtypes.h
---- mozilla/nsprpub/pr/include/prtypes.h	6 May 2009 05:40:35 -0000	3.41
-+++ mozilla/nsprpub/pr/include/prtypes.h	15 Jan 2010 01:23:40 -0000
+retrieving revision 3.43
+diff -p -u -8 -r3.43 prtypes.h
+--- mozilla/nsprpub/pr/include/prtypes.h	11 Jun 2010 01:34:54 -0000	3.43
++++ mozilla/nsprpub/pr/include/prtypes.h	10 Aug 2010 01:06:02 -0000
 @@ -75,17 +75,33 @@
  ** Example:
  **   in dowhim.h
@@ -46,7 +46,7 @@ RCS file: /cvsroot/mozilla/nsprpub/pr/src/md/windows/w95dllmain.c,v
 retrieving revision 3.8
 diff -p -u -8 -r3.8 w95dllmain.c
 --- mozilla/nsprpub/pr/src/md/windows/w95dllmain.c	25 Apr 2004 15:01:00 -0000	3.8
-+++ mozilla/nsprpub/pr/src/md/windows/w95dllmain.c	15 Jan 2010 01:23:40 -0000
++++ mozilla/nsprpub/pr/src/md/windows/w95dllmain.c	10 Aug 2010 01:06:02 -0000
 @@ -30,16 +30,18 @@
   * use your version of this file under the terms of the MPL, indicate your
   * decision by deleting the provisions above and replace them with the notice
@@ -80,11 +80,11 @@ diff -p -u -8 -r3.8 w95dllmain.c
 Index: mozilla/nsprpub/pr/src/md/windows/w95thred.c
 ===================================================================
 RCS file: /cvsroot/mozilla/nsprpub/pr/src/md/windows/w95thred.c,v
-retrieving revision 3.18
-diff -p -u -8 -r3.18 w95thred.c
---- mozilla/nsprpub/pr/src/md/windows/w95thred.c	4 Feb 2009 23:44:01 -0000	3.18
-+++ mozilla/nsprpub/pr/src/md/windows/w95thred.c	15 Jan 2010 01:23:40 -0000
-@@ -309,8 +309,115 @@ PRThread *thread;
+retrieving revision 3.19
+diff -p -u -8 -r3.19 w95thred.c
+--- mozilla/nsprpub/pr/src/md/windows/w95thred.c	11 Jun 2010 01:34:54 -0000	3.19
++++ mozilla/nsprpub/pr/src/md/windows/w95thred.c	10 Aug 2010 01:06:02 -0000
+@@ -309,8 +309,121 @@ PRThread *thread;
  
     	if (NULL == thread) {
  		thread = _PRI_AttachThread(
@@ -132,17 +132,19 @@ diff -p -u -8 -r3.18 w95thred.c
 +// This magic is from http://www.codeproject.com/threads/tls.asp
 +// and it works for VC++ 7.0 and later.
 +
++// Force a reference to _tls_used to make the linker create the TLS directory
++// if it's not already there.  (e.g. if __declspec(thread) is not used).
++// Force a reference to p_thread_callback_nspr to prevent whole program
++// optimization from discarding the variable.
 +#ifdef _WIN64
 +
-+// This makes the linker create the TLS directory if it's not already
-+// there.  (e.g. if __declspec(thread) is not used).
 +#pragma comment(linker, "/INCLUDE:_tls_used")
++#pragma comment(linker, "/INCLUDE:p_thread_callback_nspr")
 +
 +#else  // _WIN64
 +
-+// This makes the linker create the TLS directory if it's not already
-+// there.  (e.g. if __declspec(thread) is not used).
 +#pragma comment(linker, "/INCLUDE:__tls_used")
++#pragma comment(linker, "/INCLUDE:_p_thread_callback_nspr")
 +
 +#endif  // _WIN64
 +
@@ -178,15 +180,19 @@ diff -p -u -8 -r3.18 w95thred.c
 +// implicitly loaded.
 +//
 +// See VC\crt\src\tlssup.c for reference.
++
++// The linker must not discard p_thread_callback_nspr.  (We force a reference
++// to this variable with a linker /INCLUDE:symbol pragma to ensure that.) If
++// this variable is discarded, the PR_OnThreadExit function will never be
++// called.
 +#ifdef _WIN64
 +
 +// .CRT section is merged with .rdata on x64 so it must be constant data.
 +#pragma const_seg(".CRT$XLB")
 +// When defining a const variable, it must have external linkage to be sure the
-+// linker doesn't discard it. If this value is discarded, the PR_OnThreadExit
-+// function will never be called.
-+extern const PIMAGE_TLS_CALLBACK p_thread_callback;
-+const PIMAGE_TLS_CALLBACK p_thread_callback = PR_OnThreadExit;
++// linker doesn't discard it.
++extern const PIMAGE_TLS_CALLBACK p_thread_callback_nspr;
++const PIMAGE_TLS_CALLBACK p_thread_callback_nspr = PR_OnThreadExit;
 +
 +// Reset the default section.
 +#pragma const_seg()
@@ -194,7 +200,7 @@ diff -p -u -8 -r3.18 w95thred.c
 +#else  // _WIN64
 +
 +#pragma data_seg(".CRT$XLB")
-+PIMAGE_TLS_CALLBACK p_thread_callback = PR_OnThreadExit;
++PIMAGE_TLS_CALLBACK p_thread_callback_nspr = PR_OnThreadExit;
 +
 +// Reset the default section.
 +#pragma data_seg()
