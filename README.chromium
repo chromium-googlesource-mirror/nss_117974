@@ -1,7 +1,7 @@
 Network Security Services (NSS)
 
 URL: http://www.mozilla.org/projects/security/pki/nss/
-Version: NSS 3.12.7 with NSPR 4.8.6
+Version: NSS 3.12.8 with NSPR 4.8.6
 License: MPL/LGPL/GPL tri-license
 License File: http://www.mozilla.org/MPL/
 
@@ -19,7 +19,7 @@ Linux.
 
 The source code was checked out from the mozilla.org CVS repository using
 the nspr-checkout.sh and nss-checkout.sh scripts in the scripts directory.
-The current source code was checked out with the CVS tags -r NSS_3_12_7_RTM
+The current source code was checked out with the CVS tags -r NSS_3_12_8_RTM
 and -r NSPR_4_8_6_RTM.
 
 Local Modifications:
