@@ -1,11 +1,12 @@
-Network Security Services (NSS)
-
+Name: Network Security Services (NSS)
+Short Name: nss
 URL: http://www.mozilla.org/projects/security/pki/nss/
-Version: NSS 3.12.8 with NSPR 4.8.6
+Version: 3.12.8
 License: MPL/LGPL/GPL tri-license
 License File: http://www.mozilla.org/MPL/
 
 Description:
+NSS 3.12.8 with NSPR 4.8.6
 
 This copy of NSS has been customized for Chromium.  NSPR is also put here
 rather than in a separate directory to emphasize the fact that Chromium is
