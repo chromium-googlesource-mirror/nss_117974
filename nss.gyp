@@ -1,4 +1,4 @@
-# Copyright (c) 2010 The Chromium Authors. All rights reserved.
+# Copyright (c) 2011 The Chromium Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -659,10 +659,6 @@
       },
       'conditions': [
         ['target_arch=="ia32"', {
-          'defines': [
-            'NSS_X86_OR_X64',
-            'NSS_X86',
-          ],
           'sources/': [
             ['exclude', 'amd64'],
           ],
@@ -680,13 +676,22 @@
           'sources!': [
             'mozilla/security/nss/lib/freebl/mpi/mpi_x86_asm.c',
           ],
-          'conditions': [
-            ['target_arch=="ia32"', {
-              'defines': [
-                'i386',
-              ],
-            }],
-          ],
+          'xcode_settings': {
+            # Can't use 'target_arch=="ia32"' conditional because that is
+            # only checked at GYP file generation time.
+            'GCC_PREPROCESSOR_DEFINITIONS[arch=i386]': [
+              '$(inherited)',
+              'NSS_X86_OR_X64',
+              'NSS_X86',
+              'i386',
+            ],
+            'GCC_PREPROCESSOR_DEFINITIONS[arch=x86_64]': [
+              '$(inherited)',
+              'NSS_USE_64',
+              'NSS_X86_OR_X64',
+              'NSS_X64',
+            ],
+          },
         }],
         ['OS=="win"', {
           'defines': [
@@ -701,6 +706,8 @@
           'conditions': [
             ['target_arch=="ia32"', {
               'defines': [
+                'NSS_X86_OR_X64',
+                'NSS_X86',
                 '_X86_',
                 'MP_ASSEMBLY_MULTIPLY',
                 'MP_ASSEMBLY_SQUARE',
