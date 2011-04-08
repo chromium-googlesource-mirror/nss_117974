@@ -64,8 +64,6 @@
 
 #define HAVE_DLL
 #undef  HAVE_THREAD_AFFINITY
-#define _PR_HAVE_GETADDRINFO
-#define _PR_INET6_PROBE
 #ifndef _PR_INET6
 #define AF_INET6 23
 /* newer ws2tcpip.h provides these */
