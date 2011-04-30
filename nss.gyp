@@ -227,6 +227,8 @@
           'mozilla/nsprpub/lib/libc/include',
         ],
       },
+      # TODO(wtc): suppress C4244 and C4554 in prdtoa.c.
+      'msvs_disabled_warnings': [4018, 4244, 4554],
       'conditions': [
         ['OS=="mac"', {
           'defines': [
@@ -657,6 +659,7 @@
           'mozilla/security/nss/lib/util',
         ],
       },
+      'msvs_disabled_warnings': [4018, 4101],
       'conditions': [
         ['target_arch=="ia32"', {
           'sources/': [
