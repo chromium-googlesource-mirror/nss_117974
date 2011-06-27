@@ -41,3 +41,5 @@ We made the following local changes to NSS.
   libpkix (the new certification path validation library) and
   softoken/legacydb (support for the old Berkeley DB databases).  See NSS
   bug 534471 (https://bugzilla.mozilla.org/show_bug.cgi?id=534471).
+- mozilla/security/nss/exports_win.def: The list of exports to use when
+  building nss as a dynamic library (crnss.dll).

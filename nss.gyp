@@ -36,7 +36,8 @@
   'targets': [
     {
       'target_name': 'nspr',
-      'type': '<(library)',
+      'product_name': 'crnspr',
+      'type': '<(component)',
       'sources': [
         'mozilla/nsprpub/lib/ds/plarena.c',
         'mozilla/nsprpub/lib/ds/plarena.h',
@@ -209,6 +210,7 @@
         'mozilla/nsprpub/pr/src/threads/prtpd.c',
       ],
       'defines': [
+        '_NSPR_BUILD_',
         'FORCE_PR_LOG',
       ],
       'include_dirs': [
@@ -280,11 +282,22 @@
             }],
           ],
         }],
+        ['component == "static_library"', {
+          'defines': [
+            'NSPR_STATIC',
+          ],
+          'direct_dependent_settings': {
+            'defines': [
+              'NSPR_STATIC',
+            ],
+          },
+        }],
       ],
     },
     {
       'target_name': 'nss',
-      'type': '<(library)',
+      'product_name': 'crnss',
+      'type': '<(component)',
       'sources': [
         'mozilla/security/nss/lib/base/arena.c',
         'mozilla/security/nss/lib/base/base.h',
@@ -717,6 +730,11 @@
                 'MP_ASSEMBLY_DIV_2DX1D',
                 'MP_USE_UINT_DIGIT',
                 'MP_NO_MP_WORD',
+              ],
+            }],
+            ['component == "shared_library"', {
+              'sources': [
+                'mozilla/security/nss/exports_win.def',
               ],
             }],
           ],

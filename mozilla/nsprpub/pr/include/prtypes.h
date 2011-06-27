@@ -80,7 +80,7 @@
 **
 **
 ***********************************************************************/
-#if 1  /* STATIC LIBRARIES */
+#if defined(NSPR_STATIC)  /* STATIC LIBRARIES */
 
 #define PR_EXPORT(__type) extern __type
 #define PR_EXPORT_DATA(__type) extern __type
