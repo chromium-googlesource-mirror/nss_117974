@@ -262,6 +262,12 @@
             'mozilla/nsprpub/pr/src/threads/prmon.c',
             'mozilla/nsprpub/pr/src/threads/prsem.c',
           ],
+          'link_settings': {
+            'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/CoreFoundation.framework',
+              '$(SDKROOT)/System/Library/Frameworks/CoreServices.framework',
+            ],
+          },
         }],
         ['OS=="win"', {
           'defines': [
