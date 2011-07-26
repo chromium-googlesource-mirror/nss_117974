@@ -43,3 +43,5 @@ We made the following local changes to NSS.
   bug 534471 (https://bugzilla.mozilla.org/show_bug.cgi?id=534471).
 - mozilla/security/nss/exports_win.def: The list of exports to use when
   building nss as a dynamic library (crnss.dll).
+- patches/nss-remove-fortezza.patch: remove Fortezza certificate support.
+  See NSS bug 668397 (https://bugzilla.mozilla.org/show_bug.cgi?id=668397).

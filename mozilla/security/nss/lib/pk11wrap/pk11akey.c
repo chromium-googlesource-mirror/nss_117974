@@ -171,20 +171,6 @@ PK11_ImportPublicKey(PK11SlotInfo *slot, SECKEYPublicKey *pubKey,
 	    PK11_SETATTRS(attrs, CKA_VALUE,    pubKey->u.dsa.publicValue.data, 
 					pubKey->u.dsa.publicValue.len); attrs++;
 	    break;
-	case fortezzaKey:
-	    keyType = CKK_DSA;
-	    PK11_SETATTRS(attrs, CKA_VERIFY, &cktrue, sizeof(CK_BBOOL));attrs++;
- 	    signedattr = attrs;
-	    PK11_SETATTRS(attrs, CKA_PRIME,pubKey->u.fortezza.params.prime.data,
-				pubKey->u.fortezza.params.prime.len); attrs++;
-	    PK11_SETATTRS(attrs,CKA_SUBPRIME,
-				pubKey->u.fortezza.params.subPrime.data,
-				pubKey->u.fortezza.params.subPrime.len);attrs++;
-	    PK11_SETATTRS(attrs, CKA_BASE,  pubKey->u.fortezza.params.base.data,
-				pubKey->u.fortezza.params.base.len); attrs++;
-	    PK11_SETATTRS(attrs, CKA_VALUE, pubKey->u.fortezza.DSSKey.data, 
-				pubKey->u.fortezza.DSSKey.len); attrs++;
-            break;
         case dhKey:
 	    keyType = CKK_DH;
 	    PK11_SETATTRS(attrs, CKA_DERIVE, &cktrue, sizeof(CK_BBOOL));attrs++;
@@ -223,6 +209,9 @@ PK11_ImportPublicKey(PK11SlotInfo *slot, SECKEYPublicKey *pubKey,
 	    }
 	    break;
 	default:
+	    if (ckaId) {
+		SECITEM_FreeItem(ckaId,PR_TRUE);
+	    }
 	    PORT_SetError( SEC_ERROR_BAD_KEY );
 	    return CK_INVALID_HANDLE;
 	}
@@ -242,6 +231,10 @@ PK11_ImportPublicKey(PK11SlotInfo *slot, SECKEYPublicKey *pubKey,
 	    SECITEM_FreeItem(pubValue,PR_TRUE);
 	}
 	if ( rv != SECSuccess) {
+	    /* CKR_ATTRIBUTE_VALUE_INVALID is mapped to SEC_ERROR_BAD_DATA */
+	    if (PORT_GetError() == SEC_ERROR_BAD_DATA) {
+		PORT_SetError( SEC_ERROR_BAD_KEY );
+	    }
 	    return CK_INVALID_HANDLE;
 	}
     }
