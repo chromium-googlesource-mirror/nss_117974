@@ -11,7 +11,7 @@ set -ex
 
 rm -rf mozilla/security/nss/lib
 cvs -q -d :pserver:anonymous@cvs-mirror.mozilla.org:/cvsroot export \
-    -r NSS_3_12_8_RTM mozilla/security/nss/lib
+    -r NSS_3_12_11_BETA1 mozilla/security/nss/lib
 
 # Rename one of the utf8.c files to avoid name conflict.
 mv mozilla/security/nss/lib/base/utf8.c mozilla/security/nss/lib/base/nssutf8.c
@@ -66,7 +66,7 @@ find mozilla/security/nss/lib/freebl -type f \
     ! -name ecl_gf.c ! -name ecl_mult.c ! -name ecp.h \
     ! -name ecp_aff.c ! -name ecp_jac.c ! -name ecp_jm.c \
     ! -name ecp_mont.c ! -name ec_naf.c ! -name hasht.h \
-    ! -name md2.c ! -name md5.c ! -name logtab.h \
+    ! -name jpake.c ! -name md2.c ! -name md5.c ! -name logtab.h \
     ! -name mpcpucache.c \
     ! -name mpi-config.h \
     ! -name mpi-priv.h ! -name mpi.c ! -name mpi.h \

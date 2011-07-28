@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (c) 2010 The Chromium Authors. All rights reserved.
+# Copyright (c) 2011 The Chromium Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -11,7 +11,7 @@ set -ex
 
 rm -rf mozilla/nsprpub
 cvs -q -d :pserver:anonymous@cvs-mirror.mozilla.org:/cvsroot export \
-    -r NSPR_4_8_6_RTM NSPR
+    -r NSPR_4_8_9_BETA3 NSPR
 
 rm -r mozilla/nsprpub/admin
 rm -r mozilla/nsprpub/build
@@ -33,6 +33,7 @@ find mozilla/nsprpub -name .cvsignore -print | xargs rm
 find mozilla/nsprpub -name README -print | xargs rm
 
 # Remove the build system.
+rm mozilla/nsprpub/aclocal.m4
 rm mozilla/nsprpub/configure
 rm mozilla/nsprpub/configure.in
 find mozilla/nsprpub -name Makefile.in -print | xargs rm
@@ -65,7 +66,6 @@ rm mozilla/nsprpub/pr/src/md/windows/ntthread.c
 
 # Remove obsolete files or files we don't need.
 rm mozilla/nsprpub/pr/include/gencfg.c
-rm mozilla/nsprpub/pr/src/memory/prgcleak.c
 rm mozilla/nsprpub/pr/src/misc/compile-et.pl
 rm mozilla/nsprpub/pr/src/misc/dtoa.c
 rm mozilla/nsprpub/pr/src/misc/prerr.et

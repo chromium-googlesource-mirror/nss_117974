@@ -1,12 +1,12 @@
 Name: Network Security Services (NSS)
 Short Name: nss
 URL: http://www.mozilla.org/projects/security/pki/nss/
-Version: 3.12.8
+Version: 3.12.11 Beta 1
 License: MPL/LGPL/GPL tri-license
 License File: http://www.mozilla.org/MPL/
 
 Description:
-NSS 3.12.8 with NSPR 4.8.6
+NSS 3.12.11 Beta 1 with NSPR 4.8.9 Beta 3
 
 This copy of NSS has been customized for Chromium.  NSPR is also put here
 rather than in a separate directory to emphasize the fact that Chromium is
@@ -20,8 +20,8 @@ Linux.
 
 The source code was checked out from the mozilla.org CVS repository using
 the nspr-checkout.sh and nss-checkout.sh scripts in the scripts directory.
-The current source code was checked out with the CVS tags -r NSS_3_12_8_RTM
-and -r NSPR_4_8_6_RTM.
+The current source code was checked out with the CVS tags -r NSS_3_12_11_BETA1
+and -r NSPR_4_8_9_BETA3.
 
 Local Modifications:
 
@@ -35,6 +35,13 @@ We made the following local changes to NSPR.
   (The "system" vs. "user" thread distinction comes from Java, and
   ultimately from Solaris threads.)  This is a workaround for
   http://crbug.com/40663.
+- patches/nspr-remove-io.patch: Remove IO operations in NSPR to allow NSS
+  to work in the sandbox.  Do not initialize IO when initializing NSPR.
+  Windows version of NSPR also tried to use getaddrinfo to resolve hostname
+  in a SSL connection.  By removing _PR_HAVE_GETADDRINFO this will force it
+  to use PR_GetHostByName.  Removing _PR_INET6_PROBE will prevent it from
+  creating an IPv6 socket to probe if IPv6 is there.
+  DO NOT upstream this patch.
 
 We made the following local changes to NSS.
 - patches/nss-static.patch: to build NSS as static libraries and omit
