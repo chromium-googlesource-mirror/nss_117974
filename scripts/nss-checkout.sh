@@ -16,14 +16,15 @@ cvs -q -d :pserver:anonymous@cvs-mirror.mozilla.org:/cvsroot export \
 # Rename one of the utf8.c files to avoid name conflict.
 mv mozilla/security/nss/lib/base/utf8.c mozilla/security/nss/lib/base/nssutf8.c
 
-rm -r mozilla/security/nss/lib/ckfw
+rm -r mozilla/security/nss/lib/ckfw/capi
+rm -r mozilla/security/nss/lib/ckfw/dbm
+rm -r mozilla/security/nss/lib/ckfw/nssmkey
 rm -r mozilla/security/nss/lib/crmf
 rm -r mozilla/security/nss/lib/freebl/ecl/tests
 rm -r mozilla/security/nss/lib/freebl/mpi/doc
 rm -r mozilla/security/nss/lib/freebl/mpi/tests
 rm -r mozilla/security/nss/lib/freebl/mpi/utils
 rm -r mozilla/security/nss/lib/jar
-rm -r mozilla/security/nss/lib/libpkix
 rm -r mozilla/security/nss/lib/pkcs12
 rm -r mozilla/security/nss/lib/pki/doc
 rm -r mozilla/security/nss/lib/softoken/legacydb
@@ -44,11 +45,15 @@ find mozilla/security/nss/lib -name "*.def" -print | xargs rm
 find mozilla/security/nss/lib -name "*.rc" -print | xargs rm
 
 # Remove obsolete files or files we don't need.
+rm mozilla/security/nss/lib/ckfw/builtins/certdata.perl
+rm mozilla/security/nss/lib/ckfw/builtins/certdata.txt
+rm mozilla/security/nss/lib/ckfw/ck.api
+rm mozilla/security/nss/lib/ckfw/ckapi.perl
+rm mozilla/security/nss/lib/libpkix/pkix/params/pkix_buildparams.c
+rm mozilla/security/nss/lib/libpkix/pkix/params/pkix_buildparams.h
 rm mozilla/security/nss/lib/util/secload.c
 rm mozilla/security/nss/lib/util/secplcy.c
 rm mozilla/security/nss/lib/util/secplcy.h
-rm mozilla/security/nss/lib/certhigh/certvfypkix.c
-rm mozilla/security/nss/lib/certhigh/certvfypkixprint.c
 rm mozilla/security/nss/lib/smime/*.c
 
 find mozilla/security/nss/lib/ssl -type f ! -name sslerr.h | xargs rm
