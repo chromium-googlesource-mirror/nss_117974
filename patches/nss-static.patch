@@ -4,8 +4,8 @@ RCS file: /cvsroot/mozilla/security/nss/lib/certhigh/certvfy.c,v
 retrieving revision 1.71
 diff -p -u -8 -r1.71 certvfy.c
 --- mozilla/security/nss/lib/certhigh/certvfy.c	30 Apr 2010 07:47:48 -0000	1.71
-+++ mozilla/security/nss/lib/certhigh/certvfy.c	27 Jul 2011 22:01:02 -0000
-@@ -40,27 +40,71 @@
++++ mozilla/security/nss/lib/certhigh/certvfy.c	30 Jul 2011 00:09:29 -0000
+@@ -40,27 +40,70 @@
  #include "secoid.h"
  #include "sslerr.h"
  #include "genname.h"
@@ -14,12 +14,11 @@ diff -p -u -8 -r1.71 certvfy.c
  #include "certdb.h"
  #include "certi.h"
  #include "cryptohi.h"
-+#define NO_LIBPKIX
-+#ifndef NO_LIBPKIX
++#ifndef NSS_DISABLE_LIBPKIX
  #include "pkix.h"
  /*#include "pkix_sample_modules.h" */
  #include "pkix_pl_cert.h"
-+#endif  /* NO_LIBPKIX */
++#endif  /* NSS_DISABLE_LIBPKIX */
  
  
  #include "nsspki.h"
@@ -28,7 +27,7 @@ diff -p -u -8 -r1.71 certvfy.c
  #include "pki3hack.h"
  #include "base.h"
  
-+#ifdef NO_LIBPKIX
++#ifdef NSS_DISABLE_LIBPKIX
 +SECStatus
 +cert_VerifyCertChainPkix(
 +    CERTCertificate *cert,
@@ -67,7 +66,7 @@ diff -p -u -8 -r1.71 certvfy.c
 +    PORT_SetError(PR_NOT_IMPLEMENTED_ERROR);
 +    return SECFailure;
 +}
-+#endif  /* NO_LIBPKIX */
++#endif  /* NSS_DISABLE_LIBPKIX */
 +
  /*
   * Check the validity times of a certificate
@@ -77,13 +76,73 @@ diff -p -u -8 -r1.71 certvfy.c
  {
      SECCertTimeValidity valid = CERT_CheckCertValidTimes(c, PR_Now(), PR_TRUE);
      return (valid == secCertTimeValid) ? SECSuccess : SECFailure;
+Index: mozilla/security/nss/lib/ckfw/nssck.api
+===================================================================
+RCS file: /cvsroot/mozilla/security/nss/lib/ckfw/nssck.api,v
+retrieving revision 1.7
+diff -p -u -8 -r1.7 nssck.api
+--- mozilla/security/nss/lib/ckfw/nssck.api	2 Feb 2005 22:28:11 -0000	1.7
++++ mozilla/security/nss/lib/ckfw/nssck.api	30 Jul 2011 00:09:29 -0000
+@@ -1783,17 +1783,17 @@ C_WaitForSlotEvent
+   CK_SLOT_ID_PTR pSlot,
+   CK_VOID_PTR pRserved
+ )
+ {
+   return __ADJOIN(MODULE_NAME,C_WaitForSlotEvent)(flags, pSlot, pRserved);
+ }
+ #endif /* DECLARE_STRICT_CRYPTOKI_NAMES */
+ 
+-static CK_RV CK_ENTRY
++CK_RV CK_ENTRY
+ __ADJOIN(MODULE_NAME,C_GetFunctionList)
+ (
+   CK_FUNCTION_LIST_PTR_PTR ppFunctionList
+ );
+ 
+ static CK_FUNCTION_LIST FunctionList = {
+   { 2, 1 },
+ __ADJOIN(MODULE_NAME,C_Initialize),
+@@ -1861,30 +1861,32 @@ __ADJOIN(MODULE_NAME,C_UnwrapKey),
+ __ADJOIN(MODULE_NAME,C_DeriveKey),
+ __ADJOIN(MODULE_NAME,C_SeedRandom),
+ __ADJOIN(MODULE_NAME,C_GenerateRandom),
+ __ADJOIN(MODULE_NAME,C_GetFunctionStatus),
+ __ADJOIN(MODULE_NAME,C_CancelFunction),
+ __ADJOIN(MODULE_NAME,C_WaitForSlotEvent)
+ };
+ 
+-static CK_RV CK_ENTRY
++CK_RV CK_ENTRY
+ __ADJOIN(MODULE_NAME,C_GetFunctionList)
+ (
+   CK_FUNCTION_LIST_PTR_PTR ppFunctionList
+ )
+ {
+   *ppFunctionList = &FunctionList;
+   return CKR_OK;
+ }
+ 
++#ifndef NSS_STATIC
+ /* This one is always present */
+ CK_RV CK_ENTRY
+ C_GetFunctionList
+ (
+   CK_FUNCTION_LIST_PTR_PTR ppFunctionList
+ )
+ {
+   return __ADJOIN(MODULE_NAME,C_GetFunctionList)(ppFunctionList);
+ }
++#endif
+ 
+ #undef __ADJOIN
+ 
 Index: mozilla/security/nss/lib/freebl/blapii.h
 ===================================================================
 RCS file: /cvsroot/mozilla/security/nss/lib/freebl/blapii.h,v
 retrieving revision 1.1
 diff -p -u -8 -r1.1 blapii.h
 --- mozilla/security/nss/lib/freebl/blapii.h	3 Feb 2009 05:34:40 -0000	1.1
-+++ mozilla/security/nss/lib/freebl/blapii.h	27 Jul 2011 22:01:02 -0000
++++ mozilla/security/nss/lib/freebl/blapii.h	30 Jul 2011 00:09:29 -0000
 @@ -39,19 +39,19 @@
  #define _BLAPII_H_
  
@@ -112,7 +171,7 @@ RCS file: /cvsroot/mozilla/security/nss/lib/freebl/rsa.c,v
 retrieving revision 1.39.22.2
 diff -p -u -8 -r1.39.22.2 rsa.c
 --- mozilla/security/nss/lib/freebl/rsa.c	30 Mar 2011 18:39:44 -0000	1.39.22.2
-+++ mozilla/security/nss/lib/freebl/rsa.c	27 Jul 2011 22:01:02 -0000
++++ mozilla/security/nss/lib/freebl/rsa.c	30 Jul 2011 00:09:29 -0000
 @@ -1588,18 +1588,25 @@ void RSA_Cleanup(void)
   * free_bl may have allocated along the way. Currently only RSA does this,
   * so I've put it here for now.
@@ -123,7 +182,7 @@ diff -p -u -8 -r1.39.22.2 rsa.c
  }
  
 -PRBool parentForkedAfterC_Initialize;
-+#if 1  /* STATIC LIBRARIES */
++#ifdef NSS_STATIC
 +void
 +BL_Unload(void)
 +{
@@ -147,8 +206,8 @@ RCS file: /cvsroot/mozilla/security/nss/lib/freebl/shvfy.c,v
 retrieving revision 1.13
 diff -p -u -8 -r1.13 shvfy.c
 --- mozilla/security/nss/lib/freebl/shvfy.c	29 Apr 2010 00:17:52 -0000	1.13
-+++ mozilla/security/nss/lib/freebl/shvfy.c	27 Jul 2011 22:01:02 -0000
-@@ -97,19 +97,29 @@ readItem(PRFileDesc *fd, SECItem *item)
++++ mozilla/security/nss/lib/freebl/shvfy.c	30 Jul 2011 00:09:29 -0000
+@@ -97,19 +97,31 @@ readItem(PRFileDesc *fd, SECItem *item)
  	PORT_Free(item->data);
  	item->data = NULL;
  	item->len = 0;
@@ -159,10 +218,12 @@ diff -p -u -8 -r1.13 shvfy.c
  
 +/*
 + * Define PSEUDO_FIPS if you can't do FIPS software integrity test (e.g.,
-+ * if you're using NSS as static libraries), but want to confirm to the
++ * if you're using NSS as static libraries), but want to conform to the
 + * rest of the FIPS requirements.
 + */
++#ifdef NSS_STATIC
 +#define PSEUDO_FIPS
++#endif
 +
  PRBool
  BLAPI_SHVerify(const char *name, PRFuncPtr addr)
@@ -178,7 +239,7 @@ diff -p -u -8 -r1.13 shvfy.c
      SHA1Context *hashcx = NULL;
      SECItem signature = { 0, NULL, 0 };
      SECItem hash;
-@@ -282,19 +292,23 @@ loser:
+@@ -282,19 +294,23 @@ loser:
      if (key.params.base.data != NULL) {
  	PORT_Free(key.params.base.data);
      }
@@ -209,8 +270,8 @@ RCS file: /cvsroot/mozilla/security/nss/lib/nss/nssinit.c,v
 retrieving revision 1.106
 diff -p -u -8 -r1.106 nssinit.c
 --- mozilla/security/nss/lib/nss/nssinit.c	3 Apr 2010 20:06:00 -0000	1.106
-+++ mozilla/security/nss/lib/nss/nssinit.c	27 Jul 2011 22:01:02 -0000
-@@ -47,19 +47,22 @@
++++ mozilla/security/nss/lib/nss/nssinit.c	30 Jul 2011 00:09:29 -0000
+@@ -47,19 +47,21 @@
  #include "cert.h"
  #include "key.h"
  #include "secmod.h"
@@ -219,12 +280,11 @@ diff -p -u -8 -r1.106 nssinit.c
  #include "pk11func.h"
  #include "secerr.h"
  #include "nssbase.h"
-+#define NO_LIBPKIX
-+#ifndef NO_LIBPKIX
++#ifndef NSS_DISABLE_LIBPKIX
  #include "pkixt.h"
  #include "pkix.h"
  #include "pkix_tools.h"
-+#endif  /* NO_LIBPKIX */
++#endif  /* NSS_DISABLE_LIBPKIX */
  
  #include "pki3hack.h"
  #include "certi.h"
@@ -233,7 +293,7 @@ diff -p -u -8 -r1.106 nssinit.c
  #include "ocspi.h"
  
  /*
-@@ -530,18 +533,20 @@ nss_Init(const char *configdir, const ch
+@@ -530,18 +532,20 @@ nss_Init(const char *configdir, const ch
  		 NSSInitParameters *initParams,
  		 PRBool readOnly, PRBool noCertDB, 
  		 PRBool noModDB, PRBool forceOpen, PRBool noRootInit,
@@ -242,7 +302,7 @@ diff -p -u -8 -r1.106 nssinit.c
  		 PRBool dontFinalizeModules)
  {
      SECStatus rv = SECFailure;
-+#ifndef NO_LIBPKIX
++#ifndef NSS_DISABLE_LIBPKIX
      PKIX_UInt32 actualMinorVersion = 0;
      PKIX_Error *pkixError = NULL;
 +#endif
@@ -254,7 +314,7 @@ diff -p -u -8 -r1.106 nssinit.c
      /* if we are trying to init with a traditional NSS_Init call, maintain
       * the traditional idempotent behavior. */
      if (!initContextPtr && nssIsInitted) {
-@@ -660,28 +665,30 @@ nss_Init(const char *configdir, const ch
+@@ -660,28 +664,30 @@ nss_Init(const char *configdir, const ch
  		    nss_FindExternalRoot(dbpath, secmodName);
  		}
  	    }
@@ -263,7 +323,7 @@ diff -p -u -8 -r1.106 nssinit.c
  	pk11sdr_Init();
  	cert_CreateSubjectKeyIDHashTable();
  
-+#ifndef NO_LIBPKIX
++#ifndef NSS_DISABLE_LIBPKIX
  	pkixError = PKIX_Initialize
  	    (PKIX_FALSE, PKIX_MAJOR_VERSION, PKIX_MINOR_VERSION,
  	    PKIX_MINOR_VERSION, &actualMinorVersion, &plContext);
@@ -276,7 +336,7 @@ diff -p -u -8 -r1.106 nssinit.c
                  CERT_SetUsePKIXForValidation(PR_TRUE);
              }
          }
-+#endif  /* NO_LIBPKIX */
++#endif  /* NSS_DISABLE_LIBPKIX */
  
  
      }
@@ -285,7 +345,7 @@ diff -p -u -8 -r1.106 nssinit.c
       * Now mark the appropriate init state. If initContextPtr was passed
       * in, then return the new context pointer and add it to the
       * nssInitContextList. Otherwise set the global nss_isInitted flag
-@@ -1024,17 +1031,19 @@ nss_Shutdown(void)
+@@ -1024,17 +1030,19 @@ nss_Shutdown(void)
  
      rv = nss_ShutdownShutdownList();
      if (rv != SECSuccess) {
@@ -294,7 +354,7 @@ diff -p -u -8 -r1.106 nssinit.c
      cert_DestroyLocks();
      ShutdownCRLCache();
      OCSP_ShutdownGlobal();
-+#ifndef NO_LIBPKIX
++#ifndef NSS_DISABLE_LIBPKIX
      PKIX_Shutdown(plContext);
 +#endif
      SECOID_Shutdown();
@@ -311,8 +371,8 @@ RCS file: /cvsroot/mozilla/security/nss/lib/pk11wrap/pk11load.c,v
 retrieving revision 1.30.2.2
 diff -p -u -8 -r1.30.2.2 pk11load.c
 --- mozilla/security/nss/lib/pk11wrap/pk11load.c	27 Jan 2011 01:35:46 -0000	1.30.2.2
-+++ mozilla/security/nss/lib/pk11wrap/pk11load.c	27 Jul 2011 22:01:02 -0000
-@@ -344,46 +344,54 @@ SECMOD_SetRootCerts(PK11SlotInfo *slot, 
++++ mozilla/security/nss/lib/pk11wrap/pk11load.c	30 Jul 2011 00:09:29 -0000
+@@ -344,46 +344,55 @@ SECMOD_SetRootCerts(PK11SlotInfo *slot, 
  	   mod->slotInfo = psi_list;
  	   mod->slotInfoCount++;
  	   
@@ -321,10 +381,11 @@ diff -p -u -8 -r1.30.2.2 pk11load.c
      }
  }
  
-+#if 1  /* STATIC LIBRARIES */
++#ifdef NSS_STATIC
 +extern CK_RV NSC_GetFunctionList(CK_FUNCTION_LIST_PTR *pFunctionList);
 +extern CK_RV FC_GetFunctionList(CK_FUNCTION_LIST_PTR *pFunctionList);
 +extern char **NSC_ModuleDBFunc(unsigned long function,char *parameters, void *args);
++extern CK_RV builtinsC_GetFunctionList(CK_FUNCTION_LIST_PTR *pFunctionList);
 +#else
  static const char* my_shlib_name =
      SHLIB_PREFIX"nss"SHLIB_VERSION"."SHLIB_SUFFIX;
@@ -334,14 +395,14 @@ diff -p -u -8 -r1.30.2.2 pk11load.c
  static PRCallOnceType loadSoftokenOnce;
  static PRLibrary* softokenLib;
  static PRInt32 softokenLoadCount;
-+#endif  /* STATIC LIBRARIES */
++#endif  /* NSS_STATIC */
  
  #include "prio.h"
  #include "prprf.h"
  #include <stdio.h>
  #include "prsystem.h"
  
-+#if 0  /* STATIC LIBRARIES */
++#ifndef NSS_STATIC
  /* This function must be run only once. */
  /*  determine if hybrid platform, then actually load the DSO. */
  static PRStatus
@@ -358,7 +419,7 @@ diff -p -u -8 -r1.30.2.2 pk11load.c
    }
    return PR_FAILURE;
  }
-+#endif  /* STATIC LIBRARIES */
++#endif  /* !NSS_STATIC */
  
  /*
   * load a new module into our address space and initialize it.
@@ -367,7 +428,7 @@ diff -p -u -8 -r1.30.2.2 pk11load.c
  secmod_LoadPKCS11Module(SECMODModule *mod, SECMODModule **oldModule) {
      PRLibrary *library = NULL;
      CK_C_GetFunctionList entry = NULL;
-@@ -393,16 +401,26 @@ secmod_LoadPKCS11Module(SECMODModule *mo
+@@ -393,16 +402,26 @@ secmod_LoadPKCS11Module(SECMODModule *mo
      SECStatus rv;
      PRBool alreadyLoaded = PR_FALSE;
      char *disableUnload = NULL;
@@ -376,7 +437,7 @@ diff -p -u -8 -r1.30.2.2 pk11load.c
  
      /* intenal modules get loaded from their internal list */
      if (mod->internal && (mod->dllName == NULL)) {
-+#if 1  /* STATIC LIBRARIES */
++#ifdef NSS_STATIC
 +    if (mod->isFIPS) {
 +        entry = FC_GetFunctionList;
 +    } else {
@@ -394,7 +455,7 @@ diff -p -u -8 -r1.30.2.2 pk11load.c
          PR_SUCCESS != PR_CallOnce(&loadSoftokenOnce, &softoken_LoadDSO))
          return SECFailure;
  
-@@ -418,16 +436,17 @@ secmod_LoadPKCS11Module(SECMODModule *mo
+@@ -418,26 +437,36 @@ secmod_LoadPKCS11Module(SECMODModule *mo
  
      if (!entry)
          return SECFailure;
@@ -412,7 +473,44 @@ diff -p -u -8 -r1.30.2.2 pk11load.c
      } else {
  	/* Not internal, load the DLL and look up C_GetFunctionList */
  	if (mod->dllName == NULL) {
-@@ -592,27 +611,29 @@ SECMOD_UnloadModule(SECMODModule *mod) {
+ 	    return SECFailure;
+ 	}
++#if defined(NSS_STATIC) && !defined(NSS_DISABLE_ROOT_CERTS)
++	if (strstr(mod->dllName, "nssckbi") != NULL) {
++	    mod->library = NULL;
++	    PORT_Assert(!mod->moduleDBOnly);
++	    entry = builtinsC_GetFunctionList;
++	    PORT_Assert(!mod->isModuleDB);
++	    goto library_loaded;
++	}
++#endif
+ 
+ 	full_name = PORT_Strdup(mod->dllName);
+ 
+ 	/* load the library. If this succeeds, then we have to remember to
+ 	 * unload the library if anything goes wrong from here on out...
+ 	 */
+ 	library = PR_LoadLibrary(full_name);
+ 	mod->library = (void *)library;
+@@ -453,16 +482,17 @@ secmod_LoadPKCS11Module(SECMODModule *mo
+ 	if (!mod->moduleDBOnly) {
+ 	    entry = (CK_C_GetFunctionList)
+ 			PR_FindSymbol(library, "C_GetFunctionList");
+ 	}
+ 	if (mod->isModuleDB) {
+ 	    mod->moduleDBFunc = (void *)
+ 			PR_FindSymbol(library, "NSS_ReturnModuleSpecData");
+ 	}
++library_loaded:
+ 	if (mod->moduleDBFunc == NULL) mod->isModuleDB = PR_FALSE;
+ 	if (entry == NULL) {
+ 	    if (mod->isModuleDB) {
+ 		mod->loaded = PR_TRUE;
+ 		mod->moduleDBOnly = PR_TRUE;
+ 		return SECSuccess;
+ 	    }
+ 	    PR_UnloadLibrary(library);
+@@ -592,33 +622,40 @@ SECMOD_UnloadModule(SECMODModule *mod) {
      }
      mod->moduleID = 0;
      mod->loaded = PR_FALSE;
@@ -421,7 +519,7 @@ diff -p -u -8 -r1.30.2.2 pk11load.c
       * if not, we should change this to SECFailure and move it above the
       * mod->loaded = PR_FALSE; */
      if (mod->internal) {
-+#if 0  /* STATIC LIBRARIES */
++#ifndef NSS_STATIC
          if (0 == PR_ATOMIC_DECREMENT(&softokenLoadCount)) {
            if (softokenLib) {
                disableUnload = PR_GetEnv("NSS_DISABLE_UNLOAD");
@@ -440,15 +538,26 @@ diff -p -u -8 -r1.30.2.2 pk11load.c
      library = (PRLibrary *)mod->library;
      /* paranoia */
      if (library == NULL) {
++#if defined(NSS_STATIC) && !defined(NSS_DISABLE_ROOT_CERTS)
++	if (strstr(mod->dllName, "nssckbi") != NULL) {
++	    return SECSuccess;
++	}
++#endif
  	return SECFailure;
      }
+ 
+     disableUnload = PR_GetEnv("NSS_DISABLE_UNLOAD");
+     if (!disableUnload) {
+         PR_UnloadLibrary(library);
+     }
+     return SECSuccess;
 Index: mozilla/security/nss/lib/softoken/lgglue.c
 ===================================================================
 RCS file: /cvsroot/mozilla/security/nss/lib/softoken/lgglue.c,v
 retrieving revision 1.13
 diff -p -u -8 -r1.13 lgglue.c
 --- mozilla/security/nss/lib/softoken/lgglue.c	16 Apr 2009 18:19:26 -0000	1.13
-+++ mozilla/security/nss/lib/softoken/lgglue.c	27 Jul 2011 22:01:02 -0000
++++ mozilla/security/nss/lib/softoken/lgglue.c	30 Jul 2011 00:09:29 -0000
 @@ -50,16 +50,17 @@
  
  static LGOpenFunc legacy_glue_open = NULL;
@@ -458,7 +567,7 @@ diff -p -u -8 -r1.13 lgglue.c
  static LGAddSecmodFunc legacy_glue_addSecmod = NULL;
  static LGShutdownFunc legacy_glue_shutdown = NULL;
  
-+#if 0  /* STATIC LIBRARIES */
++#ifndef NSS_STATIC
  /*
   * The following 3 functions duplicate the work done by bl_LoadLibrary.
   * We should make bl_LoadLibrary a global and replace the call to
@@ -485,7 +594,7 @@ diff -p -u -8 -r1.13 lgglue.c
  static SECStatus
  sftkdb_encrypt_stub(PRArenaPool *arena, SDB *sdb, SECItem *plainText,
  		    SECItem **cipherText)
-@@ -299,16 +301,33 @@ sftkdbLoad_Legacy(PRBool isFIPS)
+@@ -299,16 +301,31 @@ sftkdbLoad_Legacy(PRBool isFIPS)
  		 * get cleared in shutdown */
  		return SECFailure;
  	    }
@@ -494,9 +603,10 @@ diff -p -u -8 -r1.13 lgglue.c
  	return SECSuccess;
      }
  
-+#undef TRY_TO_USE_NSSDBM
-+#if 1  /* STATIC LIBRARIES */
-+#ifdef TRY_TO_USE_NSSDBM
++#ifdef NSS_STATIC
++#ifdef NSS_DISABLE_DBM
++    return SECFailure;
++#else
 +    lib = (PRLibrary *) 0x8;
 +
 +    legacy_glue_open = legacy_Open;
@@ -506,9 +616,6 @@ diff -p -u -8 -r1.13 lgglue.c
 +    legacy_glue_addSecmod = legacy_AddSecmodDB;
 +    legacy_glue_shutdown = legacy_Shutdown;
 +    setCryptFunction = legacy_SetCryptFunctions;
-+#else
-+    fprintf(stderr, "NSSDBM omitted!\n");
-+    return SECFailure;
 +#endif
 +#else
      lib = sftkdb_LoadLibrary(LEGACY_LIB_NAME);
@@ -519,7 +626,7 @@ diff -p -u -8 -r1.13 lgglue.c
      legacy_glue_open = (LGOpenFunc)PR_FindFunctionSymbol(lib, "legacy_Open");
      legacy_glue_readSecmod = (LGReadSecmodFunc) PR_FindFunctionSymbol(lib,
  						 "legacy_ReadSecmodDB");
-@@ -324,21 +343,24 @@ sftkdbLoad_Legacy(PRBool isFIPS)
+@@ -324,21 +341,24 @@ sftkdbLoad_Legacy(PRBool isFIPS)
  						"legacy_SetCryptFunctions");
  
      if (!legacy_glue_open || !legacy_glue_readSecmod || 
@@ -528,12 +635,12 @@ diff -p -u -8 -r1.13 lgglue.c
  	PR_UnloadLibrary(lib);
  	return SECFailure;
      }
-+#endif  /* STATIC LIBRARIES */
++#endif  /* NSS_STATIC */
  
      /* verify the loaded library if we are in FIPS mode */
      if (isFIPS) {
  	if (!BLAPI_SHVerify(LEGACY_LIB_NAME,(PRFuncPtr)legacy_glue_open)) {
-+#if 0  /* STATIC LIBRARIES */
++#ifndef NSS_STATIC
  	    PR_UnloadLibrary(lib);
 +#endif
  	    return SECFailure;
@@ -544,7 +651,7 @@ diff -p -u -8 -r1.13 lgglue.c
      setCryptFunction(sftkdb_encrypt_stub,sftkdb_decrypt_stub);
      legacy_glue_lib = lib;
      return SECSuccess;
-@@ -445,20 +467,22 @@ sftkdbCall_Shutdown(void)
+@@ -445,20 +465,22 @@ sftkdbCall_Shutdown(void)
  	return CKR_OK;
      }
      if (legacy_glue_shutdown) {
@@ -553,7 +660,7 @@ diff -p -u -8 -r1.13 lgglue.c
  #endif
  	crv = (*legacy_glue_shutdown)(parentForkedAfterC_Initialize);
      }
-+#if 0  /* STATIC LIBRARIES */
++#ifndef NSS_STATIC
      disableUnload = PR_GetEnv("NSS_DISABLE_UNLOAD");
      if (!disableUnload) {
          PR_UnloadLibrary(legacy_glue_lib);
@@ -573,7 +680,7 @@ RCS file: /cvsroot/mozilla/security/nss/lib/softoken/lgglue.h,v
 retrieving revision 1.4
 diff -p -u -8 -r1.4 lgglue.h
 --- mozilla/security/nss/lib/softoken/lgglue.h	16 Apr 2009 18:19:26 -0000	1.4
-+++ mozilla/security/nss/lib/softoken/lgglue.h	27 Jul 2011 22:01:02 -0000
++++ mozilla/security/nss/lib/softoken/lgglue.h	30 Jul 2011 00:09:29 -0000
 @@ -65,16 +65,35 @@ typedef SECStatus (*LGDeleteSecmodFunc)(
  			const char *dbname, char *params, PRBool rw);
  typedef SECStatus (*LGAddSecmodFunc)(const char *appName, 
@@ -616,7 +723,7 @@ RCS file: /cvsroot/mozilla/security/nss/lib/util/secport.h,v
 retrieving revision 1.23
 diff -p -u -8 -r1.23 secport.h
 --- mozilla/security/nss/lib/util/secport.h	30 Oct 2009 09:44:47 -0000	1.23
-+++ mozilla/security/nss/lib/util/secport.h	27 Jul 2011 22:01:02 -0000
++++ mozilla/security/nss/lib/util/secport.h	30 Jul 2011 00:09:29 -0000
 @@ -238,16 +238,17 @@ sec_port_iso88591_utf8_conversion_functi
    unsigned int maxOutBufLen,
    unsigned int *outBufLen
@@ -626,7 +733,7 @@ diff -p -u -8 -r1.23 secport.h
  
  extern int NSS_SecureMemcmp(const void *a, const void *b, size_t n);
  
-+#if 0  /* STATIC LIBRARIES */
++#ifndef NSS_STATIC
  /*
   * Load a shared library called "newShLibName" in the same directory as
   * a shared library that is already loaded, called existingShLibName.
@@ -644,7 +751,7 @@ diff -p -u -8 -r1.23 secport.h
  PORT_LoadLibraryFromOrigin(const char* existingShLibName,
                   PRFuncPtr staticShLibFunc,
                   const char *newShLibName);
-+#endif  /* STATIC LIBRARIES */
++#endif  /* NSS_STATIC */
  
  SEC_END_PROTOS
  

@@ -243,7 +243,7 @@ extern int NSS_PutEnv(const char * envVarName, const char * envValue);
 
 extern int NSS_SecureMemcmp(const void *a, const void *b, size_t n);
 
-#if 0  /* STATIC LIBRARIES */
+#ifndef NSS_STATIC
 /*
  * Load a shared library called "newShLibName" in the same directory as
  * a shared library that is already loaded, called existingShLibName.
@@ -278,7 +278,7 @@ PRLibrary *
 PORT_LoadLibraryFromOrigin(const char* existingShLibName,
                  PRFuncPtr staticShLibFunc,
                  const char *newShLibName);
-#endif  /* STATIC LIBRARIES */
+#endif  /* NSS_STATIC */
 
 SEC_END_PROTOS
 

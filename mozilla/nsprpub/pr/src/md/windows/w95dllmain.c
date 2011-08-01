@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#if 0  /* STATIC LIBRARIES.  See the end of w95thred.c. */
+#ifndef NSPR_STATIC  /* See the end of w95thred.c. */
 
 /*
  * The DLL entry point (DllMain) for NSPR.

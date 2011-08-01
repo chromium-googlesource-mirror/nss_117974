@@ -1593,7 +1593,7 @@ void BL_Cleanup(void)
     RSA_Cleanup();
 }
 
-#if 1  /* STATIC LIBRARIES */
+#ifdef NSS_STATIC
 void
 BL_Unload(void)
 {

@@ -45,12 +45,11 @@
 #include "certdb.h"
 #include "certi.h"
 #include "cryptohi.h"
-#define NO_LIBPKIX
-#ifndef NO_LIBPKIX
+#ifndef NSS_DISABLE_LIBPKIX
 #include "pkix.h"
 /*#include "pkix_sample_modules.h" */
 #include "pkix_pl_cert.h"
-#endif  /* NO_LIBPKIX */
+#endif  /* NSS_DISABLE_LIBPKIX */
 
 
 #include "nsspki.h"
@@ -59,7 +58,7 @@
 #include "pki3hack.h"
 #include "base.h"
 
-#ifdef NO_LIBPKIX
+#ifdef NSS_DISABLE_LIBPKIX
 SECStatus
 cert_VerifyCertChainPkix(
     CERTCertificate *cert,
@@ -98,7 +97,7 @@ SECStatus CERT_PKIXVerifyCert(
     PORT_SetError(PR_NOT_IMPLEMENTED_ERROR);
     return SECFailure;
 }
-#endif  /* NO_LIBPKIX */
+#endif  /* NSS_DISABLE_LIBPKIX */
 
 /*
  * Check the validity times of a certificate

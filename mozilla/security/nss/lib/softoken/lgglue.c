@@ -55,7 +55,7 @@ static LGDeleteSecmodFunc legacy_glue_deleteSecmod = NULL;
 static LGAddSecmodFunc legacy_glue_addSecmod = NULL;
 static LGShutdownFunc legacy_glue_shutdown = NULL;
 
-#if 0  /* STATIC LIBRARIES */
+#ifndef NSS_STATIC
 /*
  * The following 3 functions duplicate the work done by bl_LoadLibrary.
  * We should make bl_LoadLibrary a global and replace the call to
@@ -306,9 +306,10 @@ sftkdbLoad_Legacy(PRBool isFIPS)
 	return SECSuccess;
     }
 
-#undef TRY_TO_USE_NSSDBM
-#if 1  /* STATIC LIBRARIES */
-#ifdef TRY_TO_USE_NSSDBM
+#ifdef NSS_STATIC
+#ifdef NSS_DISABLE_DBM
+    return SECFailure;
+#else
     lib = (PRLibrary *) 0x8;
 
     legacy_glue_open = legacy_Open;
@@ -318,9 +319,6 @@ sftkdbLoad_Legacy(PRBool isFIPS)
     legacy_glue_addSecmod = legacy_AddSecmodDB;
     legacy_glue_shutdown = legacy_Shutdown;
     setCryptFunction = legacy_SetCryptFunctions;
-#else
-    fprintf(stderr, "NSSDBM omitted!\n");
-    return SECFailure;
 #endif
 #else
     lib = sftkdb_LoadLibrary(LEGACY_LIB_NAME);
@@ -348,12 +346,12 @@ sftkdbLoad_Legacy(PRBool isFIPS)
 	PR_UnloadLibrary(lib);
 	return SECFailure;
     }
-#endif  /* STATIC LIBRARIES */
+#endif  /* NSS_STATIC */
 
     /* verify the loaded library if we are in FIPS mode */
     if (isFIPS) {
 	if (!BLAPI_SHVerify(LEGACY_LIB_NAME,(PRFuncPtr)legacy_glue_open)) {
-#if 0  /* STATIC LIBRARIES */
+#ifndef NSS_STATIC
 	    PR_UnloadLibrary(lib);
 #endif
 	    return SECFailure;
@@ -472,7 +470,7 @@ sftkdbCall_Shutdown(void)
 #endif
 	crv = (*legacy_glue_shutdown)(parentForkedAfterC_Initialize);
     }
-#if 0  /* STATIC LIBRARIES */
+#ifndef NSS_STATIC
     disableUnload = PR_GetEnv("NSS_DISABLE_UNLOAD");
     if (!disableUnload) {
         PR_UnloadLibrary(legacy_glue_lib);

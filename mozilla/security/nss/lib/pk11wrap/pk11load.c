@@ -349,10 +349,11 @@ SECMOD_SetRootCerts(PK11SlotInfo *slot, SECMODModule *mod) {
     }
 }
 
-#if 1  /* STATIC LIBRARIES */
+#ifdef NSS_STATIC
 extern CK_RV NSC_GetFunctionList(CK_FUNCTION_LIST_PTR *pFunctionList);
 extern CK_RV FC_GetFunctionList(CK_FUNCTION_LIST_PTR *pFunctionList);
 extern char **NSC_ModuleDBFunc(unsigned long function,char *parameters, void *args);
+extern CK_RV builtinsC_GetFunctionList(CK_FUNCTION_LIST_PTR *pFunctionList);
 #else
 static const char* my_shlib_name =
     SHLIB_PREFIX"nss"SHLIB_VERSION"."SHLIB_SUFFIX;
@@ -362,14 +363,14 @@ static const PRCallOnceType pristineCallOnce;
 static PRCallOnceType loadSoftokenOnce;
 static PRLibrary* softokenLib;
 static PRInt32 softokenLoadCount;
-#endif  /* STATIC LIBRARIES */
+#endif  /* NSS_STATIC */
 
 #include "prio.h"
 #include "prprf.h"
 #include <stdio.h>
 #include "prsystem.h"
 
-#if 0  /* STATIC LIBRARIES */
+#ifndef NSS_STATIC
 /* This function must be run only once. */
 /*  determine if hybrid platform, then actually load the DSO. */
 static PRStatus
@@ -386,7 +387,7 @@ softoken_LoadDSO( void )
   }
   return PR_FAILURE;
 }
-#endif  /* STATIC LIBRARIES */
+#endif  /* !NSS_STATIC */
 
 /*
  * load a new module into our address space and initialize it.
@@ -406,7 +407,7 @@ secmod_LoadPKCS11Module(SECMODModule *mod, SECMODModule **oldModule) {
 
     /* intenal modules get loaded from their internal list */
     if (mod->internal && (mod->dllName == NULL)) {
-#if 1  /* STATIC LIBRARIES */
+#ifdef NSS_STATIC
     if (mod->isFIPS) {
         entry = FC_GetFunctionList;
     } else {
@@ -452,6 +453,15 @@ secmod_LoadPKCS11Module(SECMODModule *mod, SECMODModule **oldModule) {
 	if (mod->dllName == NULL) {
 	    return SECFailure;
 	}
+#if defined(NSS_STATIC) && !defined(NSS_DISABLE_ROOT_CERTS)
+	if (strstr(mod->dllName, "nssckbi") != NULL) {
+	    mod->library = NULL;
+	    PORT_Assert(!mod->moduleDBOnly);
+	    entry = builtinsC_GetFunctionList;
+	    PORT_Assert(!mod->isModuleDB);
+	    goto library_loaded;
+	}
+#endif
 
 	full_name = PORT_Strdup(mod->dllName);
 
@@ -477,6 +487,7 @@ secmod_LoadPKCS11Module(SECMODModule *mod, SECMODModule **oldModule) {
 	    mod->moduleDBFunc = (void *)
 			PR_FindSymbol(library, "NSS_ReturnModuleSpecData");
 	}
+library_loaded:
 	if (mod->moduleDBFunc == NULL) mod->isModuleDB = PR_FALSE;
 	if (entry == NULL) {
 	    if (mod->isModuleDB) {
@@ -616,7 +627,7 @@ SECMOD_UnloadModule(SECMODModule *mod) {
      * if not, we should change this to SECFailure and move it above the
      * mod->loaded = PR_FALSE; */
     if (mod->internal) {
-#if 0  /* STATIC LIBRARIES */
+#ifndef NSS_STATIC
         if (0 == PR_ATOMIC_DECREMENT(&softokenLoadCount)) {
           if (softokenLib) {
               disableUnload = PR_GetEnv("NSS_DISABLE_UNLOAD");
@@ -635,6 +646,11 @@ SECMOD_UnloadModule(SECMODModule *mod) {
     library = (PRLibrary *)mod->library;
     /* paranoia */
     if (library == NULL) {
+#if defined(NSS_STATIC) && !defined(NSS_DISABLE_ROOT_CERTS)
+	if (strstr(mod->dllName, "nssckbi") != NULL) {
+	    return SECSuccess;
+	}
+#endif
 	return SECFailure;
     }
 

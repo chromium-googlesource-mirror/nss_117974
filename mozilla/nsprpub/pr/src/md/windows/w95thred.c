@@ -315,6 +315,8 @@ PRThread *thread;
 	return thread;
 }
 
+#ifdef NSPR_STATIC
+
 // The following code is from Chromium src/base/thread_local_storage_win.cc,
 // r11329.
 
@@ -427,3 +429,5 @@ PIMAGE_TLS_CALLBACK p_thread_callback_nspr = PR_OnThreadExit;
 #pragma data_seg()
 
 #endif  // _WIN64
+
+#endif  // NSPR_STATIC

@@ -52,12 +52,11 @@
 #include "pk11func.h"
 #include "secerr.h"
 #include "nssbase.h"
-#define NO_LIBPKIX
-#ifndef NO_LIBPKIX
+#ifndef NSS_DISABLE_LIBPKIX
 #include "pkixt.h"
 #include "pkix.h"
 #include "pkix_tools.h"
-#endif  /* NO_LIBPKIX */
+#endif  /* NSS_DISABLE_LIBPKIX */
 
 #include "pki3hack.h"
 #include "certi.h"
@@ -538,7 +537,7 @@ nss_Init(const char *configdir, const char *certPrefix, const char *keyPrefix,
 		 PRBool dontFinalizeModules)
 {
     SECStatus rv = SECFailure;
-#ifndef NO_LIBPKIX
+#ifndef NSS_DISABLE_LIBPKIX
     PKIX_UInt32 actualMinorVersion = 0;
     PKIX_Error *pkixError = NULL;
 #endif
@@ -670,7 +669,7 @@ nss_Init(const char *configdir, const char *certPrefix, const char *keyPrefix,
 	pk11sdr_Init();
 	cert_CreateSubjectKeyIDHashTable();
 
-#ifndef NO_LIBPKIX
+#ifndef NSS_DISABLE_LIBPKIX
 	pkixError = PKIX_Initialize
 	    (PKIX_FALSE, PKIX_MAJOR_VERSION, PKIX_MINOR_VERSION,
 	    PKIX_MINOR_VERSION, &actualMinorVersion, &plContext);
@@ -683,7 +682,7 @@ nss_Init(const char *configdir, const char *certPrefix, const char *keyPrefix,
                 CERT_SetUsePKIXForValidation(PR_TRUE);
             }
         }
-#endif  /* NO_LIBPKIX */
+#endif  /* NSS_DISABLE_LIBPKIX */
 
 
     }
@@ -1036,7 +1035,7 @@ nss_Shutdown(void)
     cert_DestroyLocks();
     ShutdownCRLCache();
     OCSP_ShutdownGlobal();
-#ifndef NO_LIBPKIX
+#ifndef NSS_DISABLE_LIBPKIX
     PKIX_Shutdown(plContext);
 #endif
     SECOID_Shutdown();

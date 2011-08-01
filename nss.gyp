@@ -837,6 +837,8 @@
         'USE_UTIL_DIRECTLY',
         'MP_API_COMPATIBLE',
         'RIJNDAEL_INCLUDE_TABLES',
+        'NSS_DISABLE_DBM',
+        'NSS_STATIC',
         'NSS_USE_STATIC_LIBS',
         'SHLIB_VERSION=\"3\"',
         'SOFTOKEN_SHLIB_VERSION=\"3\"',
@@ -870,6 +872,7 @@
       'direct_dependent_settings': {
         'defines': [
           'NO_NSPR_10_SUPPORT',
+          'NSS_STATIC',
           'NSS_USE_STATIC_LIBS',
           'USE_UTIL_DIRECTLY',
         ],
@@ -896,11 +899,17 @@
       'msvs_disabled_warnings': [4018, 4101],
       'conditions': [
         ['exclude_nss_root_certs==1', {
+          'defines': [
+            'NSS_DISABLE_ROOT_CERTS',
+          ],
           'sources/': [
             ['exclude', '^mozilla/security/nss/lib/ckfw/'],
           ],
         }],
         ['exclude_nss_libpkix==1', {
+          'defines': [
+            'NSS_DISABLE_LIBPKIX',
+          ],
           'sources/': [
             ['exclude', '^mozilla/security/nss/lib/libpkix/'],
           ],

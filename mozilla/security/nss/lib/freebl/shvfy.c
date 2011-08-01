@@ -104,10 +104,12 @@ readItem(PRFileDesc *fd, SECItem *item)
 
 /*
  * Define PSEUDO_FIPS if you can't do FIPS software integrity test (e.g.,
- * if you're using NSS as static libraries), but want to confirm to the
+ * if you're using NSS as static libraries), but want to conform to the
  * rest of the FIPS requirements.
  */
+#ifdef NSS_STATIC
 #define PSEUDO_FIPS
+#endif
 
 PRBool
 BLAPI_SHVerify(const char *name, PRFuncPtr addr)

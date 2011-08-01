@@ -1788,7 +1788,7 @@ C_WaitForSlotEvent
 }
 #endif /* DECLARE_STRICT_CRYPTOKI_NAMES */
 
-static CK_RV CK_ENTRY
+CK_RV CK_ENTRY
 __ADJOIN(MODULE_NAME,C_GetFunctionList)
 (
   CK_FUNCTION_LIST_PTR_PTR ppFunctionList
@@ -1866,7 +1866,7 @@ __ADJOIN(MODULE_NAME,C_CancelFunction),
 __ADJOIN(MODULE_NAME,C_WaitForSlotEvent)
 };
 
-static CK_RV CK_ENTRY
+CK_RV CK_ENTRY
 __ADJOIN(MODULE_NAME,C_GetFunctionList)
 (
   CK_FUNCTION_LIST_PTR_PTR ppFunctionList
@@ -1876,6 +1876,7 @@ __ADJOIN(MODULE_NAME,C_GetFunctionList)
   return CKR_OK;
 }
 
+#ifndef NSS_STATIC
 /* This one is always present */
 CK_RV CK_ENTRY
 C_GetFunctionList
@@ -1885,6 +1886,7 @@ C_GetFunctionList
 {
   return __ADJOIN(MODULE_NAME,C_GetFunctionList)(ppFunctionList);
 }
+#endif
 
 #undef __ADJOIN
 
