@@ -106,10 +106,12 @@ PK11_GetWrapKey
 PK11_HashBuf
 PK11_ImportDERPrivateKeyInfoAndReturnKey
 PK11_ImportSymKey
+PK11_IsLoggedIn
 PK11_IsPresent
 PK11_IVFromParam
 PK11_KeyGen
 PK11_MapSignKeyType
+PK11_NeedLogin
 PK11_ParamFromIV
 PK11_PrivDecryptPKCS1
 PK11_PubDecryptRaw
