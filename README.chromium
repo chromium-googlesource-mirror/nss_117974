@@ -1,12 +1,12 @@
 Name: Network Security Services (NSS)
 Short Name: nss
 URL: http://www.mozilla.org/projects/security/pki/nss/
-Version: 3.12.11 Beta 1
+Version: 3.13.1 Beta 2
 License: MPL/LGPL/GPL tri-license
 License File: http://www.mozilla.org/MPL/
 
 Description:
-NSS 3.12.11 Beta 1 with NSPR 4.8.9 Beta 3
+NSS 3.13.1 Beta 2 with NSPR 4.8.9 Beta 3
 
 This copy of NSS has been customized for Chromium.  NSPR is also put here
 rather than in a separate directory to emphasize the fact that Chromium is
@@ -20,7 +20,7 @@ Linux.
 
 The source code was checked out from the mozilla.org CVS repository using
 the nspr-checkout.sh and nss-checkout.sh scripts in the scripts directory.
-The current source code was checked out with the CVS tags -r NSS_3_12_11_BETA1
+The current source code was checked out with the CVS tags -r NSS_3_13_1_BETA2
 and -r NSPR_4_8_9_BETA3.
 
 Local Modifications:
@@ -50,5 +50,6 @@ We made the following local changes to NSS.
   bug 534471 (https://bugzilla.mozilla.org/show_bug.cgi?id=534471).
 - mozilla/security/nss/exports_win.def: The list of exports to use when
   building nss as a dynamic library (crnss.dll).
-- patches/nss-remove-fortezza.patch: remove Fortezza certificate support.
-  See NSS bug 668397 (https://bugzilla.mozilla.org/show_bug.cgi?id=668397).
+- patches/nss-remove-fortezza.patch: remove Fortezza certificate support
+  from PK11_ImportPublicKey.  See NSS bug 668397
+  (https://bugzilla.mozilla.org/show_bug.cgi?id=668397).

@@ -1,7 +1,4 @@
-/*
- * NSS utility functions
- *
- * ***** BEGIN LICENSE BLOCK *****
+/* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -14,10 +11,10 @@
  * for the specific language governing rights and limitations under the
  * License.
  *
- * The Original Code is Network Security Services.
+ * The Original Code is the Netscape security libraries.
  *
  * The Initial Developer of the Original Code is
- * Red Hat Inc.
+ * Red Hat, Inc
  * Portions created by the Initial Developer are Copyright (C) 2009
  * the Initial Developer. All Rights Reserved.
  *
@@ -36,38 +33,40 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
+#include "prerror.h"
+#include "secerr.h"
+#include "secport.h"
+#include "prinit.h"
+#include "prprf.h"
+#include "prtypes.h"
+#include "prlog.h"
+#include "plstr.h"
+#include "nssutil.h"
+#include <string.h>
 
-#ifndef __nssutil_h_
-#define __nssutil_h_
+#define ER3(name, value, str) {#name, str},
 
-#ifndef RC_INVOKED
-#include "seccomon.h"
-#endif
+static const struct PRErrorMessage sectext[] = {
+#include "SECerrs.h"
+    {0,0}
+};
 
-/*
- * NSS utilities's major version, minor version, patch level, build number,
- * and whether this is a beta release.
- *
- * The format of the version string should be
- *     "<major version>.<minor version>[.<patch level>[.<build number>]][ <Beta>]"
- */
-#define NSSUTIL_VERSION  "3.13.1.0 Beta"
-#define NSSUTIL_VMAJOR   3
-#define NSSUTIL_VMINOR   13
-#define NSSUTIL_VPATCH   1
-#define NSSUTIL_VBUILD   0
-#define NSSUTIL_BETA     PR_TRUE
+static const struct PRErrorTable sec_et = {
+    sectext, "secerrstrings", SEC_ERROR_BASE, 
+        (sizeof sectext)/(sizeof sectext[0]) 
+};
 
-SEC_BEGIN_PROTOS
+static PRStatus 
+nss_InitializePRErrorTableOnce(void) {
+    return PR_ErrorInstallTable(&sec_et);
+}
 
-/*
- * Returns a const string of the UTIL library version.
- */
-extern const char *NSSUTIL_GetVersion(void);
+static PRCallOnceType once;
 
-extern SECStatus
-NSS_InitializePRErrorTable(void);
+SECStatus
+NSS_InitializePRErrorTable(void)
+{
+    return (PR_SUCCESS == PR_CallOnce(&once, nss_InitializePRErrorTableOnce))
+		? SECSuccess : SECFailure;
+}
 
-SEC_END_PROTOS
-
-#endif /* __nssutil_h_ */

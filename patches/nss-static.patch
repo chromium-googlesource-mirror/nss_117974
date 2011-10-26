@@ -1,10 +1,10 @@
 Index: mozilla/security/nss/lib/certhigh/certvfy.c
 ===================================================================
 RCS file: /cvsroot/mozilla/security/nss/lib/certhigh/certvfy.c,v
-retrieving revision 1.71
-diff -p -u -8 -r1.71 certvfy.c
---- mozilla/security/nss/lib/certhigh/certvfy.c	30 Apr 2010 07:47:48 -0000	1.71
-+++ mozilla/security/nss/lib/certhigh/certvfy.c	30 Jul 2011 00:09:29 -0000
+retrieving revision 1.75
+diff -p -u -8 -r1.75 certvfy.c
+--- mozilla/security/nss/lib/certhigh/certvfy.c	14 Sep 2011 00:28:47 -0000	1.75
++++ mozilla/security/nss/lib/certhigh/certvfy.c	25 Oct 2011 22:35:58 -0000
 @@ -40,27 +40,70 @@
  #include "secoid.h"
  #include "sslerr.h"
@@ -82,7 +82,7 @@ RCS file: /cvsroot/mozilla/security/nss/lib/ckfw/nssck.api,v
 retrieving revision 1.7
 diff -p -u -8 -r1.7 nssck.api
 --- mozilla/security/nss/lib/ckfw/nssck.api	2 Feb 2005 22:28:11 -0000	1.7
-+++ mozilla/security/nss/lib/ckfw/nssck.api	30 Jul 2011 00:09:29 -0000
++++ mozilla/security/nss/lib/ckfw/nssck.api	25 Oct 2011 22:35:58 -0000
 @@ -1783,17 +1783,17 @@ C_WaitForSlotEvent
    CK_SLOT_ID_PTR pSlot,
    CK_VOID_PTR pRserved
@@ -136,43 +136,14 @@ diff -p -u -8 -r1.7 nssck.api
  
  #undef __ADJOIN
  
-Index: mozilla/security/nss/lib/freebl/blapii.h
-===================================================================
-RCS file: /cvsroot/mozilla/security/nss/lib/freebl/blapii.h,v
-retrieving revision 1.1
-diff -p -u -8 -r1.1 blapii.h
---- mozilla/security/nss/lib/freebl/blapii.h	3 Feb 2009 05:34:40 -0000	1.1
-+++ mozilla/security/nss/lib/freebl/blapii.h	30 Jul 2011 00:09:29 -0000
-@@ -39,19 +39,19 @@
- #define _BLAPII_H_
- 
- #include "blapit.h"
- 
- SEC_BEGIN_PROTOS
- 
- #if defined(XP_UNIX) && !defined(NO_CHECK_FORK)
- 
--extern PRBool parentForkedAfterC_Initialize;
-+extern PRBool bl_parentForkedAfterC_Initialize;
- 
--#define SKIP_AFTER_FORK(x) if (!parentForkedAfterC_Initialize) x
-+#define SKIP_AFTER_FORK(x) if (!bl_parentForkedAfterC_Initialize) x
- 
- #else
- 
- #define SKIP_AFTER_FORK(x) x
- 
- #endif
- 
- SEC_END_PROTOS
 Index: mozilla/security/nss/lib/freebl/rsa.c
 ===================================================================
 RCS file: /cvsroot/mozilla/security/nss/lib/freebl/rsa.c,v
-retrieving revision 1.39.22.2
-diff -p -u -8 -r1.39.22.2 rsa.c
---- mozilla/security/nss/lib/freebl/rsa.c	30 Mar 2011 18:39:44 -0000	1.39.22.2
-+++ mozilla/security/nss/lib/freebl/rsa.c	30 Jul 2011 00:09:29 -0000
-@@ -1588,18 +1588,25 @@ void RSA_Cleanup(void)
+retrieving revision 1.43
+diff -p -u -8 -r1.43 rsa.c
+--- mozilla/security/nss/lib/freebl/rsa.c	21 Sep 2011 01:09:48 -0000	1.43
++++ mozilla/security/nss/lib/freebl/rsa.c	25 Oct 2011 22:35:58 -0000
+@@ -1588,16 +1588,23 @@ void RSA_Cleanup(void)
   * free_bl may have allocated along the way. Currently only RSA does this,
   * so I've put it here for now.
   */
@@ -181,7 +152,6 @@ diff -p -u -8 -r1.39.22.2 rsa.c
      RSA_Cleanup();
  }
  
--PRBool parentForkedAfterC_Initialize;
 +#ifdef NSS_STATIC
 +void
 +BL_Unload(void)
@@ -189,25 +159,22 @@ diff -p -u -8 -r1.39.22.2 rsa.c
 +}
 +#endif
 +
-+PRBool bl_parentForkedAfterC_Initialize;
+ PRBool bl_parentForkedAfterC_Initialize;
  
  /*
   * Set fork flag so it can be tested in SKIP_AFTER_FORK on relevant platforms.
   */
  void BL_SetForkState(PRBool forked)
  {
--    parentForkedAfterC_Initialize = forked;
-+    bl_parentForkedAfterC_Initialize = forked;
- }
- 
+     bl_parentForkedAfterC_Initialize = forked;
 Index: mozilla/security/nss/lib/freebl/shvfy.c
 ===================================================================
 RCS file: /cvsroot/mozilla/security/nss/lib/freebl/shvfy.c,v
-retrieving revision 1.13
-diff -p -u -8 -r1.13 shvfy.c
---- mozilla/security/nss/lib/freebl/shvfy.c	29 Apr 2010 00:17:52 -0000	1.13
-+++ mozilla/security/nss/lib/freebl/shvfy.c	30 Jul 2011 00:09:29 -0000
-@@ -97,19 +97,31 @@ readItem(PRFileDesc *fd, SECItem *item)
+retrieving revision 1.15
+diff -p -u -8 -r1.15 shvfy.c
+--- mozilla/security/nss/lib/freebl/shvfy.c	6 Dec 2010 17:22:49 -0000	1.15
++++ mozilla/security/nss/lib/freebl/shvfy.c	25 Oct 2011 22:35:58 -0000
+@@ -299,39 +299,55 @@ readItem(PRFileDesc *fd, SECItem *item)
  	PORT_Free(item->data);
  	item->data = NULL;
  	item->len = 0;
@@ -231,15 +198,39 @@ diff -p -u -8 -r1.13 shvfy.c
 +#ifdef PSEUDO_FIPS
 +    return PR_TRUE;  /* a lie, hence *pseudo* FIPS */
 +#else
+     PRBool result = PR_FALSE; /* if anything goes wrong,
+ 			       * the signature does not verify */
      /* find our shared library name */
      char *shName = PR_GetLibraryFilePathname(name, addr);
+     if (!shName) {
+ 	goto loser;
+     }
+     result = BLAPI_SHVerifyFile(shName);
+ 
+ loser:
+     if (shName != NULL) {
+ 	PR_Free(shName);
+     }
+ 
+     return result;
++#endif  /* PSEUDO_FIPS */
+ }
+ 
+ PRBool
+ BLAPI_SHVerifyFile(const char *shName)
+ {
++#ifdef PSEUDO_FIPS
++    return PR_TRUE;  /* a lie, hence *pseudo* FIPS */
++#else
      char *checkName = NULL;
      PRFileDesc *checkFD = NULL;
      PRFileDesc *shFD = NULL;
      SHA1Context *hashcx = NULL;
      SECItem signature = { 0, NULL, 0 };
      SECItem hash;
-@@ -282,19 +294,23 @@ loser:
+     int bytesRead, offset;
+     SECStatus rv;
+@@ -510,16 +526,17 @@ loser:
      if (key.params.base.data != NULL) {
  	PORT_Free(key.params.base.data);
      }
@@ -254,25 +245,17 @@ diff -p -u -8 -r1.13 shvfy.c
  PRBool
  BLAPI_VerifySelf(const char *name)
  {
--    /* to separate shlib to verify if name is NULL */
      if (name == NULL) {
-+	/*
-+	 * If name is NULL, freebl is statically linked into softoken.
-+	 * softoken will call BLAPI_SHVerify next to verify itself.
-+	 */
- 	return PR_TRUE;
-     }
-     return BLAPI_SHVerify(name, (PRFuncPtr) decodeInt);
- }
+ 	/*
+ 	 * If name is NULL, freebl is statically linked into softoken.
 Index: mozilla/security/nss/lib/nss/nssinit.c
 ===================================================================
 RCS file: /cvsroot/mozilla/security/nss/lib/nss/nssinit.c,v
-retrieving revision 1.106
-diff -p -u -8 -r1.106 nssinit.c
---- mozilla/security/nss/lib/nss/nssinit.c	3 Apr 2010 20:06:00 -0000	1.106
-+++ mozilla/security/nss/lib/nss/nssinit.c	30 Jul 2011 00:09:29 -0000
-@@ -47,19 +47,21 @@
- #include "cert.h"
+retrieving revision 1.114
+diff -p -u -8 -r1.114 nssinit.c
+--- mozilla/security/nss/lib/nss/nssinit.c	18 Oct 2011 19:03:31 -0000	1.114
++++ mozilla/security/nss/lib/nss/nssinit.c	25 Oct 2011 22:35:58 -0000
+@@ -50,19 +50,21 @@
  #include "key.h"
  #include "secmod.h"
  #include "secoid.h"
@@ -280,6 +263,7 @@ diff -p -u -8 -r1.106 nssinit.c
  #include "pk11func.h"
  #include "secerr.h"
  #include "nssbase.h"
+ #include "nssutil.h"
 +#ifndef NSS_DISABLE_LIBPKIX
  #include "pkixt.h"
  #include "pkix.h"
@@ -293,7 +277,7 @@ diff -p -u -8 -r1.106 nssinit.c
  #include "ocspi.h"
  
  /*
-@@ -530,18 +532,20 @@ nss_Init(const char *configdir, const ch
+@@ -559,18 +561,20 @@ nss_Init(const char *configdir, const ch
  		 NSSInitParameters *initParams,
  		 PRBool readOnly, PRBool noCertDB, 
  		 PRBool noModDB, PRBool forceOpen, PRBool noRootInit,
@@ -314,7 +298,7 @@ diff -p -u -8 -r1.106 nssinit.c
      /* if we are trying to init with a traditional NSS_Init call, maintain
       * the traditional idempotent behavior. */
      if (!initContextPtr && nssIsInitted) {
-@@ -660,28 +664,30 @@ nss_Init(const char *configdir, const ch
+@@ -711,28 +715,30 @@ nss_Init(const char *configdir, const ch
  		    nss_FindExternalRoot(dbpath, secmodName);
  		}
  	    }
@@ -345,7 +329,7 @@ diff -p -u -8 -r1.106 nssinit.c
       * Now mark the appropriate init state. If initContextPtr was passed
       * in, then return the new context pointer and add it to the
       * nssInitContextList. Otherwise set the global nss_isInitted flag
-@@ -1024,17 +1030,19 @@ nss_Shutdown(void)
+@@ -1092,17 +1098,19 @@ nss_Shutdown(void)
  
      rv = nss_ShutdownShutdownList();
      if (rv != SECSuccess) {
@@ -368,10 +352,10 @@ diff -p -u -8 -r1.106 nssinit.c
 Index: mozilla/security/nss/lib/pk11wrap/pk11load.c
 ===================================================================
 RCS file: /cvsroot/mozilla/security/nss/lib/pk11wrap/pk11load.c,v
-retrieving revision 1.30.2.2
-diff -p -u -8 -r1.30.2.2 pk11load.c
---- mozilla/security/nss/lib/pk11wrap/pk11load.c	27 Jan 2011 01:35:46 -0000	1.30.2.2
-+++ mozilla/security/nss/lib/pk11wrap/pk11load.c	30 Jul 2011 00:09:29 -0000
+retrieving revision 1.33
+diff -p -u -8 -r1.33 pk11load.c
+--- mozilla/security/nss/lib/pk11wrap/pk11load.c	15 Jul 2011 15:03:43 -0000	1.33
++++ mozilla/security/nss/lib/pk11wrap/pk11load.c	25 Oct 2011 22:35:58 -0000
 @@ -344,46 +344,55 @@ SECMOD_SetRootCerts(PK11SlotInfo *slot, 
  	   mod->slotInfo = psi_list;
  	   mod->slotInfoCount++;
@@ -428,7 +412,7 @@ diff -p -u -8 -r1.30.2.2 pk11load.c
  secmod_LoadPKCS11Module(SECMODModule *mod, SECMODModule **oldModule) {
      PRLibrary *library = NULL;
      CK_C_GetFunctionList entry = NULL;
-@@ -393,16 +402,26 @@ secmod_LoadPKCS11Module(SECMODModule *mo
+@@ -392,16 +401,26 @@ secmod_LoadPKCS11Module(SECMODModule *mo
      SECStatus rv;
      PRBool alreadyLoaded = PR_FALSE;
      char *disableUnload = NULL;
@@ -455,7 +439,7 @@ diff -p -u -8 -r1.30.2.2 pk11load.c
          PR_SUCCESS != PR_CallOnce(&loadSoftokenOnce, &softoken_LoadDSO))
          return SECFailure;
  
-@@ -418,26 +437,36 @@ secmod_LoadPKCS11Module(SECMODModule *mo
+@@ -417,26 +436,36 @@ secmod_LoadPKCS11Module(SECMODModule *mo
  
      if (!entry)
          return SECFailure;
@@ -485,14 +469,14 @@ diff -p -u -8 -r1.30.2.2 pk11load.c
 +	}
 +#endif
  
- 	full_name = PORT_Strdup(mod->dllName);
- 
  	/* load the library. If this succeeds, then we have to remember to
  	 * unload the library if anything goes wrong from here on out...
  	 */
- 	library = PR_LoadLibrary(full_name);
+ 	library = PR_LoadLibrary(mod->dllName);
  	mod->library = (void *)library;
-@@ -453,16 +482,17 @@ secmod_LoadPKCS11Module(SECMODModule *mo
+ 
+ 	if (library == NULL) {
+@@ -449,16 +478,17 @@ secmod_LoadPKCS11Module(SECMODModule *mo
  	if (!mod->moduleDBOnly) {
  	    entry = (CK_C_GetFunctionList)
  			PR_FindSymbol(library, "C_GetFunctionList");
@@ -510,7 +494,7 @@ diff -p -u -8 -r1.30.2.2 pk11load.c
  		return SECSuccess;
  	    }
  	    PR_UnloadLibrary(library);
-@@ -592,33 +622,40 @@ SECMOD_UnloadModule(SECMODModule *mod) {
+@@ -588,33 +618,40 @@ SECMOD_UnloadModule(SECMODModule *mod) {
      }
      mod->moduleID = 0;
      mod->loaded = PR_FALSE;
@@ -557,7 +541,7 @@ RCS file: /cvsroot/mozilla/security/nss/lib/softoken/lgglue.c,v
 retrieving revision 1.13
 diff -p -u -8 -r1.13 lgglue.c
 --- mozilla/security/nss/lib/softoken/lgglue.c	16 Apr 2009 18:19:26 -0000	1.13
-+++ mozilla/security/nss/lib/softoken/lgglue.c	30 Jul 2011 00:09:29 -0000
++++ mozilla/security/nss/lib/softoken/lgglue.c	25 Oct 2011 22:35:58 -0000
 @@ -50,16 +50,17 @@
  
  static LGOpenFunc legacy_glue_open = NULL;
@@ -680,7 +664,7 @@ RCS file: /cvsroot/mozilla/security/nss/lib/softoken/lgglue.h,v
 retrieving revision 1.4
 diff -p -u -8 -r1.4 lgglue.h
 --- mozilla/security/nss/lib/softoken/lgglue.h	16 Apr 2009 18:19:26 -0000	1.4
-+++ mozilla/security/nss/lib/softoken/lgglue.h	30 Jul 2011 00:09:29 -0000
++++ mozilla/security/nss/lib/softoken/lgglue.h	25 Oct 2011 22:35:58 -0000
 @@ -65,16 +65,35 @@ typedef SECStatus (*LGDeleteSecmodFunc)(
  			const char *dbname, char *params, PRBool rw);
  typedef SECStatus (*LGAddSecmodFunc)(const char *appName, 
@@ -720,11 +704,11 @@ diff -p -u -8 -r1.4 lgglue.h
 Index: mozilla/security/nss/lib/util/secport.h
 ===================================================================
 RCS file: /cvsroot/mozilla/security/nss/lib/util/secport.h,v
-retrieving revision 1.23
-diff -p -u -8 -r1.23 secport.h
---- mozilla/security/nss/lib/util/secport.h	30 Oct 2009 09:44:47 -0000	1.23
-+++ mozilla/security/nss/lib/util/secport.h	30 Jul 2011 00:09:29 -0000
-@@ -238,16 +238,17 @@ sec_port_iso88591_utf8_conversion_functi
+retrieving revision 1.27
+diff -p -u -8 -r1.27 secport.h
+--- mozilla/security/nss/lib/util/secport.h	4 Oct 2011 18:46:04 -0000	1.27
++++ mozilla/security/nss/lib/util/secport.h	25 Oct 2011 22:35:58 -0000
+@@ -248,16 +248,17 @@ sec_port_iso88591_utf8_conversion_functi
    unsigned int maxOutBufLen,
    unsigned int *outBufLen
  );
@@ -742,7 +726,7 @@ diff -p -u -8 -r1.23 secport.h
   *
   * existingShLibName:
   *   The file name of the shared library that shall be used as the 
-@@ -272,12 +273,13 @@ extern int NSS_SecureMemcmp(const void *
+@@ -282,12 +283,13 @@ extern int NSS_SecureMemcmp(const void *
   *
   * If the new shared library is not found in the same location as the reference
   * library, it will then be loaded from the normal system library path.
