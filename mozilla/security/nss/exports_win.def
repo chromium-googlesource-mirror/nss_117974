@@ -55,6 +55,7 @@ DSAU_EncodeDerSigWithLen
 HASH_GetHashObject
 HASH_GetRawHashObject
 HASH_HashBuf
+HASH_ResultLen
 HMAC_Begin
 HMAC_Destroy
 HMAC_Finish
