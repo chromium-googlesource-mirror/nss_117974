@@ -75,6 +75,7 @@ NSSRWLock_New_Util
 NSSRWLock_UnlockRead_Util
 NSSRWLock_UnlockWrite_Util
 NSS_Get_CERT_CertificateTemplate
+NSS_Get_CERT_SignedDataTemplate
 NSS_Get_SECKEY_EncryptedPrivateKeyInfoTemplate
 NSS_Get_SECOID_AlgorithmIDTemplate_Util
 NSS_Get_SEC_IA5StringTemplate_Util
@@ -208,6 +209,7 @@ SECOID_FindOIDTag_Util
 SECOID_FindOID_Util
 SECOID_GetAlgorithmTag_Util
 SECOID_SetAlgorithmID_Util
+SEC_ASN1DecodeItem_Util
 SEC_ASN1EncodeItem_Util
 SEC_DerSignData
 SEC_GetSignatureAlgorithmOidTag
