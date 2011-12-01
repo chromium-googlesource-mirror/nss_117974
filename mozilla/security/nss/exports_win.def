@@ -21,6 +21,7 @@ CERT_AddCertToListTail
 CERT_AddExtension
 CERT_AsciiToName
 CERT_CertChainFromCert
+CERT_CertTimesValid
 CERT_CreateCertificate
 CERT_CreateCertificateRequest
 CERT_CreateValidity
