@@ -169,6 +169,7 @@ PORT_SetError_Util
 PORT_Strdup_Util
 PORT_ZAlloc_Util
 PORT_ZFree_Util
+PR_ImplodeTime
 RC2_Decrypt
 RC2_DestroyContext
 RC2_Encrypt
