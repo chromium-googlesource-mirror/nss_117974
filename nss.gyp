@@ -853,11 +853,24 @@
         'mozilla/security/nss/lib/base',
         'mozilla/security/nss/lib/certdb',
         'mozilla/security/nss/lib/certhigh',
+        'mozilla/security/nss/lib/ckfw',
         'mozilla/security/nss/lib/cryptohi',
         'mozilla/security/nss/lib/dev',
         'mozilla/security/nss/lib/freebl',
         'mozilla/security/nss/lib/freebl/ecl',
         'mozilla/security/nss/lib/freebl/mpi',
+        'mozilla/security/nss/lib/libpkix/include',
+        'mozilla/security/nss/lib/libpkix/pkix/certsel',
+        'mozilla/security/nss/lib/libpkix/pkix/checker',
+        'mozilla/security/nss/lib/libpkix/pkix/crlsel',
+        'mozilla/security/nss/lib/libpkix/pkix/params',
+        'mozilla/security/nss/lib/libpkix/pkix/results',
+        'mozilla/security/nss/lib/libpkix/pkix/store',
+        'mozilla/security/nss/lib/libpkix/pkix/top',
+        'mozilla/security/nss/lib/libpkix/pkix/util',
+        'mozilla/security/nss/lib/libpkix/pkix_pl_nss/module',
+        'mozilla/security/nss/lib/libpkix/pkix_pl_nss/pki',
+        'mozilla/security/nss/lib/libpkix/pkix_pl_nss/system',
         'mozilla/security/nss/lib/nss',
         'mozilla/security/nss/lib/pk11wrap',
         'mozilla/security/nss/lib/pkcs7',
@@ -907,6 +920,9 @@
           'sources/': [
             ['exclude', '^mozilla/security/nss/lib/ckfw/'],
           ],
+          'include_dirs!': [
+            'mozilla/security/nss/lib/ckfw',
+          ],
         }],
         ['exclude_nss_libpkix==1', {
           'defines': [
@@ -918,6 +934,9 @@
           'sources!': [
             'mozilla/security/nss/lib/certhigh/certvfypkix.c',
             'mozilla/security/nss/lib/certhigh/certvfypkixprint.c',
+          ],
+          'include_dirs/': [
+            ['exclude', '^mozilla/security/nss/lib/libpkix/'],
           ],
         }],
         ['target_arch=="ia32"', {
